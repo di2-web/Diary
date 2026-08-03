@@ -1,0 +1,88 @@
+{
+  "entities": {
+    "users": {
+      "title": "User Profile",
+      "description": "User profiles and settings",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "bio": { "type": "string" },
+        "diaryStyle": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName"]
+    },
+    "moments": {
+      "title": "Daily Moments",
+      "description": "Moments, snippets, photos, and voice notes posted throughout the day",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userDisplayName": { "type": "string" },
+        "userPhotoURL": { "type": "string" },
+        "date": { "type": "string" },
+        "type": { "type": "string" },
+        "content": { "type": "string" },
+        "mediaUrl": { "type": "string" },
+        "mood": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "date", "type", "content"]
+    },
+    "diaries": {
+      "title": "AI Generated Diaries",
+      "description": "Daily diaries created by Gemini AI from daily moments",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userDisplayName": { "type": "string" },
+        "userPhotoURL": { "type": "string" },
+        "date": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "summary": { "type": "string" },
+        "mood": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "coverImageUrl": { "type": "string" },
+        "audioNarrationUrl": { "type": "string" },
+        "isPublic": { "type": "boolean" },
+        "likesCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "momentIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "date", "title", "content"]
+    },
+    "diary_likes": {
+      "title": "Diary Reactions",
+      "description": "Reactions and likes on public diaries",
+      "type": "object",
+      "properties": {
+        "diaryId": { "type": "string" },
+        "userId": { "type": "string" },
+        "reaction": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["diaryId", "userId"]
+    },
+    "diary_comments": {
+      "title": "Diary Comments",
+      "description": "Comments left on public diaries",
+      "type": "object",
+      "properties": {
+        "diaryId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userDisplayName": { "type": "string" },
+        "userPhotoURL": { "type": "string" },
+        "content": { "type": "string" },
+        "isAiComment": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["diaryId", "userId", "content"]
+    }
+  }
+}

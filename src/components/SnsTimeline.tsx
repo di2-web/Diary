@@ -1,0 +1,183 @@
+import React, { useState, useEffect } from 'react';
+import { Diary, UserProfile } from '../types';
+import { DiaryCard } from './DiaryCard';
+import { Globe, Search, Sparkles, Filter, RefreshCw, BookOpen } from 'lucide-react';
+import { collection, query, where, onSnapshot, db, deleteDoc, doc } from '../firebase';
+
+interface SnsTimelineProps {
+  currentUser: UserProfile | null;
+  onRequireAuth: () => void;
+  onNavigateToMoments: () => void;
+}
+
+export const SnsTimeline: React.FC<SnsTimelineProps> = ({
+  currentUser,
+  onRequireAuth,
+  onNavigateToMoments,
+}) => {
+  const [diaries, setDiaries] = useState<Diary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMoodFilter, setSelectedMoodFilter] = useState<string>('all');
+
+  useEffect(() => {
+    // Fetch public diaries
+    const q = query(
+      collection(db, 'diaries'),
+      where('isPublic', '==', true)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const list: Diary[] = [];
+        snapshot.forEach((docSnap) => {
+          list.push({ id: docSnap.id, ...docSnap.data() } as Diary);
+        });
+        // Sort by date or createdAt descending
+        list.sort(
+          (a, b) =>
+            new Date(b.createdAt || b.date).getTime() -
+            new Date(a.createdAt || a.date).getTime()
+        );
+        setDiaries(list);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Timeline fetch error:', error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleDeleteDiary = async (id: string) => {
+    if (!confirm('この日記を削除しますか？')) return;
+    try {
+      await deleteDoc(doc(db, 'diaries', id));
+    } catch (err) {
+      console.error('Delete diary error:', err);
+    }
+  };
+
+  const filteredDiaries = diaries.filter((d) => {
+    const matchesSearch =
+      d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.userDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (d.tags && d.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())));
+
+    const matchesMood =
+      selectedMoodFilter === 'all' || (d.mood && d.mood.includes(selectedMoodFilter));
+
+    return matchesSearch && matchesMood;
+  });
+
+  const moodsList = ['all', '穏やか', 'まったり', '達成感', 'ひらめき', 'おいしい', 'センチメンタル'];
+
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* SNS Hero Header */}
+      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 translate-x-10 -translate-y-10 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 max-w-2xl">
+          <div className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-300 text-xs font-semibold px-3 py-1 rounded-full border border-amber-500/30 mb-3">
+            <Globe className="w-3.5 h-3.5" /> みんなのAI日記SNS
+          </div>
+          <h1 className="font-serif font-bold text-2xl sm:text-3xl text-amber-100 tracking-tight leading-snug mb-2">
+            それぞれの今日が、美しい物語になる。
+          </h1>
+          <p className="text-stone-300 text-xs sm:text-sm leading-relaxed mb-4">
+            AIが個々の日常のつぶやきから執筆した公開日記のタイムライン。温かいリアクションやコメントで交流しましょう。
+          </p>
+
+          <button
+            onClick={onNavigateToMoments}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-amber-200" />
+            自分の今日の日記をつくる
+          </button>
+        </div>
+      </div>
+
+      {/* Filter and Search Bar */}
+      <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+        {/* Search */}
+        <div className="relative w-full sm:w-72">
+          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="キーワードやタグで検索..."
+            className="w-full pl-9 pr-4 py-2 rounded-xl border border-stone-200 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 bg-stone-50"
+          />
+        </div>
+
+        {/* Mood Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+          <span className="text-xs text-stone-400 shrink-0 flex items-center gap-1 mr-1">
+            <Filter className="w-3 h-3" /> 気分:
+          </span>
+          {moodsList.map((m) => {
+            const isSelected = selectedMoodFilter === m;
+            const label = m === 'all' ? 'すべて' : m;
+            return (
+              <button
+                key={m}
+                onClick={() => setSelectedMoodFilter(m)}
+                className={`text-xs px-2.5 py-1 rounded-full border shrink-0 transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-amber-600 text-white border-amber-600 font-bold shadow-2xs'
+                    : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Timeline Feed */}
+      {loading ? (
+        <div className="py-12 text-center space-y-3">
+          <RefreshCw className="w-8 h-8 text-amber-600 animate-spin mx-auto" />
+          <p className="text-stone-500 text-xs">タイムラインを読み込んでいます...</p>
+        </div>
+      ) : filteredDiaries.length === 0 ? (
+        <div className="bg-amber-50/50 rounded-2xl p-10 border border-dashed border-amber-300 text-center space-y-3">
+          <BookOpen className="w-10 h-10 text-amber-600 mx-auto" />
+          <h3 className="font-serif font-bold text-stone-800 text-lg">
+            日記が見つかりませんでした
+          </h3>
+          <p className="text-stone-600 text-xs max-w-sm mx-auto">
+            {searchQuery || selectedMoodFilter !== 'all'
+              ? '検索条件に一致する公開日記がありません。'
+              : 'まだ公開された日記がありません。最初のAI日記を作成して共有してみましょう！'}
+          </p>
+          <button
+            onClick={onNavigateToMoments}
+            className="mt-2 bg-amber-600 text-white font-medium text-xs px-4 py-2 rounded-xl shadow-xs hover:bg-amber-700"
+          >
+            きょうの投稿をはじめる
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {filteredDiaries.map((diary) => (
+            <DiaryCard
+              key={diary.id}
+              diary={diary}
+              currentUser={currentUser}
+              onRequireAuth={onRequireAuth}
+              onDeleteDiary={handleDeleteDiary}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
