@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { X, Sparkles, User, ShieldCheck, Heart } from 'lucide-react';
+import { X, Sparkles, ShieldCheck, Heart } from 'lucide-react';
 import {
   signInWithPopup,
   googleProvider,
-  firebaseSignInAnonymously,
   auth,
   doc,
   setDoc,
@@ -59,50 +58,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onUserSet
     }
   };
 
-  const handleGuestSignIn = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await firebaseSignInAnonymously(auth);
-      const u = res.user;
-
-      const randomNames = ['ひまり', 'そうた', 'あかり', 'れん', 'ゆい', 'かいと', 'さくら'];
-      const randomName = randomNames[Math.floor(Math.random() * randomNames.length)] + '（ゲスト）';
-
-      const profileData: UserProfile = {
-        uid: u.uid,
-        displayName: randomName,
-        photoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${u.uid}`,
-        bio: 'お試しゲストユーザーです。つぶやきからAI日記をつくっています。',
-        diaryStyle: 'warm',
-        createdAt: new Date().toISOString(),
-      };
-
-      const userRef = doc(db, 'users', u.uid);
-      await setDoc(userRef, profileData);
-
-      onUserSet(profileData);
-      onClose();
-    } catch (err: any) {
-      console.error('Guest Sign In Error:', err);
-      const code = err?.code || '';
-      const msg = err?.message || '';
-      if (
-        code === 'auth/admin-restricted-operation' ||
-        code === 'auth/operation-not-allowed' ||
-        msg.includes('admin-restricted-operation')
-      ) {
-        setError(
-          'ANONYMOUS_DISABLED: Firebase Consoleの Authentication > Sign-in method で「匿名」プロバイダが無効になっています。Googleログインをご利用いただくか、Firebase Consoleで「匿名」を有効にしてください。'
-        );
-      } else {
-        setError('お試しログインに失敗しました。Googleアカウントでのログインをお試しください。');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in">
       <div className="bg-amber-50 rounded-2xl max-w-md w-full border border-amber-200/80 shadow-2xl p-6 relative">
@@ -126,30 +81,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onUserSet
         </div>
 
         {error && (
-          <div className="mb-4 p-3.5 rounded-xl bg-amber-100/90 border border-amber-300 text-stone-800 text-xs shadow-xs">
-            {error.startsWith('ANONYMOUS_DISABLED:') ? (
-              <div className="space-y-2">
-                <div className="font-semibold text-amber-900 flex items-center gap-1.5 text-xs">
-                  <span>⚠️ 匿名ログイン（ゲスト機能）が無効です</span>
-                </div>
-                <p className="text-stone-700 leading-relaxed text-[11px]">
-                  Firebase Consoleの<span className="font-mono bg-amber-200/60 px-1 py-0.5 rounded text-amber-900">Authentication &gt; Sign-in method</span>で「匿名」認証が許可されていません。
-                </p>
-                <p className="text-stone-600 text-[11px]">
-                  設定なしですぐに使うには、下の<b>「Googleアカウントでログイン」</b>をご利用ください。
-                </p>
-                <button
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                  className="mt-1 w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Googleアカウントで今すぐログイン
-                </button>
-              </div>
-            ) : (
-              <p className="text-rose-800">{error}</p>
-            )}
+          <div className="mb-4 p-3.5 rounded-xl bg-rose-100 border border-rose-300 text-rose-800 text-xs shadow-xs">
+            <p>{error}</p>
           </div>
         )}
 
@@ -180,16 +113,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onUserSet
             </svg>
             Googleアカウントでログイン
           </button>
-
-          <button
-            id="btn-guest-login"
-            onClick={handleGuestSignIn}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-rose-500 hover:brightness-105 text-white font-medium py-3 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer disabled:opacity-50 text-sm"
-          >
-            <User className="w-4 h-4" />
-            登録なしでお試し利用（ゲスト）
-          </button>
         </div>
 
         <div className="mt-6 pt-4 border-t border-amber-200/60 flex items-center justify-center gap-4 text-[11px] text-stone-500">
@@ -197,7 +120,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onUserSet
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Firebase認証
           </span>
           <span className="flex items-center gap-1">
-            <Heart className="w-3.5 h-3.5 text-rose-500" /> 無料で試せる
+            <Heart className="w-3.5 h-3.5 text-rose-500" /> 無料で使える
           </span>
         </div>
       </div>

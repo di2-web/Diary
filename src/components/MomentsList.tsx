@@ -75,8 +75,8 @@ export const MomentsList: React.FC<MomentsListProps> = ({
             ? new Date(m.createdAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
             : '';
 
-          // Allow deletion if currentUserId matches, or if current user is guest or owner
-          const canDelete = !currentUserId || currentUserId === m.userId || m.userId === 'guest' || currentUserId === 'guest';
+          // Allow deletion if currentUserId matches or if user is owner
+          const canDelete = !currentUserId || currentUserId === m.userId;
 
           return (
             <div

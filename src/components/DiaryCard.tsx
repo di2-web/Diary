@@ -64,7 +64,7 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
   const [isGeneratingAiComment, setIsGeneratingAiComment] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const isOwner = !currentUser?.uid || currentUser?.uid === diary.userId || diary.userId === 'guest' || currentUser?.uid === 'guest';
+  const isOwner = !currentUser?.uid || currentUser?.uid === diary.userId;
 
   // Real-time listen for comments on this diary
   useEffect(() => {

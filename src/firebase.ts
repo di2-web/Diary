@@ -4,7 +4,6 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  signInAnonymously as firebaseSignInAnonymously,
   signOut as firebaseSignOut,
   onAuthStateChanged,
 } from "firebase/auth";
@@ -88,7 +87,6 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 export type { FirebaseUser };
 export {
   signInWithPopup,
-  firebaseSignInAnonymously,
   firebaseSignOut,
   onAuthStateChanged,
   doc,

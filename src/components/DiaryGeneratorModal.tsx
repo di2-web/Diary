@@ -76,9 +76,9 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
       const momentIds = moments.map((m) => m.id);
 
       const newDiaryData = {
-        userId: user?.uid || 'guest',
-        userDisplayName: user?.displayName || 'ゲストユーザー',
-        userPhotoURL: user?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.uid || 'guest'}`,
+        userId: user?.uid || '',
+        userDisplayName: user?.displayName || 'LifeLogユーザー',
+        userPhotoURL: user?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.uid || 'user'}`,
         date: selectedDate,
         title: diaryResult.title,
         content: diaryResult.content,
