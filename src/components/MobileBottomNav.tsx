@@ -1,9 +1,9 @@
 import React from 'react';
-import { Globe, BookOpen, Activity, Calendar, Sparkles } from 'lucide-react';
+import { Globe, BookOpen, Calendar, Sparkles, User } from 'lucide-react';
 
 interface MobileBottomNavProps {
-  activeTab: 'sns' | 'moments' | 'wave' | 'calendar';
-  setActiveTab: (tab: 'sns' | 'moments' | 'wave' | 'calendar') => void;
+  activeTab: 'sns' | 'moments' | 'mypage' | 'calendar';
+  setActiveTab: (tab: 'sns' | 'moments' | 'mypage' | 'calendar') => void;
   onGenerateDiaryClick: () => void;
   hasMomentsToday: boolean;
 }
@@ -57,17 +57,17 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           </button>
         </div>
 
-        {/* Tab 3: Wave */}
+        {/* Tab 3: MyPage */}
         <button
-          onClick={() => setActiveTab('wave')}
+          onClick={() => setActiveTab('mypage')}
           className={`flex flex-col items-center justify-center py-1.5 px-2 min-w-[50px] min-h-[48px] rounded-2xl transition-all cursor-pointer ${
-            activeTab === 'wave'
+            activeTab === 'mypage'
               ? 'text-amber-400 font-bold bg-amber-500/10'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
-          <Activity className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] leading-tight whitespace-nowrap">気分の波</span>
+          <User className="w-5 h-5 mb-0.5" />
+          <span className="text-[10px] leading-tight whitespace-nowrap">マイページ</span>
         </button>
 
         {/* Tab 4: Calendar */}

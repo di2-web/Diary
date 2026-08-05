@@ -68,11 +68,27 @@ interface DiaryCardProps {
   isSingleView?: boolean;
 }
 
-const REACTIONS: { type: ReactionType; icon: string; activeColor: string }[] = [
-  { type: 'heart', icon: '❤️', activeColor: 'bg-rose-100 text-rose-700 border-rose-300' },
-  { type: 'inspire', icon: '🌟', activeColor: 'bg-amber-100 text-amber-800 border-amber-300' },
-  { type: 'cozy', icon: '☕', activeColor: 'bg-orange-100 text-orange-800 border-orange-300' },
-  { type: 'support', icon: '🫂', activeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+const QUICK_EMOJIS = [
+  '❤️', '🌟', '☕', '🫂', '😊', '🎉', '👍', '👏', '🍀', '🔥', '🍰', '🐾', '🌸', '💡', '🥺', '🐱', '🐶', '🌈', '🎵', '✨'
+];
+
+const EXTENDED_EMOJI_CATEGORIES: { name: string; emojis: string[] }[] = [
+  {
+    name: '感情・表情',
+    emojis: ['❤️', '💖', '✨', '😊', '🥺', '😭', '🥰', '😍', '🥳', '😌', '😎', '🤩', '😇', '🤔', '😴', '🙈', '💬']
+  },
+  {
+    name: '評価・応援',
+    emojis: ['🌟', '👍', '👏', '🙌', '💪', '🔥', '💯', '🎊', '🎉', '👑', '🎖️', '🏆', '⭐', '🌈', '🍀', '✌️', '👌']
+  },
+  {
+    name: 'ライフ・カフェ',
+    emojis: ['☕', '🍵', '🍰', '🍙', '🍺', '🍷', '🍜', '🍓', '🎵', '🎶', '📖', '🎨', '🌙', '☀️', '🌧️', '🌸', '🪴']
+  },
+  {
+    name: '生き物・その他',
+    emojis: ['🐾', '🐱', '🐶', '熊', '🐰', '🐥', '🦄', '🐬', '📌', '🎀', '🎁', '💌', '📍', '🚗', '✈️', '🍀', '💡']
+  }
 ];
 
 export const DiaryCard: React.FC<DiaryCardProps> = ({
@@ -87,6 +103,9 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
   const [newComment, setNewComment] = useState('');
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
+  const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [customEmojiInput, setCustomEmojiInput] = useState('');
   const [copied, setCopied] = useState(false);
 
   // Decoration & Rewrite States
@@ -198,19 +217,33 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
     return () => unsubscribe();
   }, [diary.id]);
 
-  // Real-time listen for user's reaction
+  // Real-time listen for all reactions on this diary
   useEffect(() => {
-    if (!diary.id || !currentUser?.uid) return;
-    const likeDocId = `${diary.id}_${currentUser.uid}`;
-    const docRef = doc(db, 'diary_likes', likeDocId);
+    if (!diary.id) return;
+    const likesQuery = query(
+      collection(db, 'diary_likes'),
+      where('diaryId', '==', diary.id)
+    );
 
-    getDoc(docRef).then((snap) => {
-      if (snap.exists()) {
-        setUserReaction(snap.data().reaction as ReactionType);
-      } else {
-        setUserReaction(null);
-      }
+    const unsubscribe = onSnapshot(likesQuery, (snapshot) => {
+      const counts: Record<string, number> = {};
+      let currentUserCurrentReaction: string | null = null;
+
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const reactionEmoji = data.reaction || '❤️';
+        counts[reactionEmoji] = (counts[reactionEmoji] || 0) + 1;
+
+        if (currentUser?.uid && data.userId === currentUser.uid) {
+          currentUserCurrentReaction = reactionEmoji;
+        }
+      });
+
+      setReactionCounts(counts);
+      setUserReaction(currentUserCurrentReaction);
     });
+
+    return () => unsubscribe();
   }, [diary.id, currentUser?.uid]);
 
   const handleToggleReaction = async (reaction: ReactionType) => {
@@ -228,7 +261,6 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
         // Remove reaction
         await deleteDoc(likeRef);
         await updateDoc(diaryRef, { likesCount: increment(-1) });
-        setUserReaction(null);
       } else {
         // Add or change reaction
         const isNew = !userReaction;
@@ -242,8 +274,8 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
         if (isNew) {
           await updateDoc(diaryRef, { likesCount: increment(1) });
         }
-        setUserReaction(reaction);
       }
+      setShowEmojiPicker(false);
     } catch (err) {
       console.error('Reaction error:', err);
     }
@@ -656,26 +688,125 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
         </div>
 
         {/* Reactions & Interaction Controls */}
-        <div className="pt-3 border-t border-stone-100 space-y-3">
+        <div className="pt-3 border-t border-stone-100 space-y-3 relative">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            {/* Reaction buttons (Emoji only) */}
-            <div className="flex items-center gap-1.5">
-              {REACTIONS.map((r) => {
-                const isActive = userReaction === r.type;
+            {/* Reaction buttons & Counts */}
+            <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+              {/* Existing non-zero reactions (with count badge) */}
+              {Object.entries(reactionCounts).map(([emoji, count]) => {
+                const isActive = userReaction === emoji;
                 return (
                   <button
-                    key={r.type}
-                    onClick={() => handleToggleReaction(r.type)}
-                    className={`flex items-center justify-center text-sm w-8 h-8 rounded-full border transition-all cursor-pointer ${
+                    key={emoji}
+                    onClick={() => handleToggleReaction(emoji)}
+                    className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
                       isActive
-                        ? `${r.activeColor} font-bold scale-110 shadow-2xs`
-                        : 'bg-stone-50 border-stone-200/80 hover:bg-amber-100/50 hover:scale-105'
+                        ? 'bg-amber-100/90 text-amber-900 border-amber-400 font-bold scale-105 shadow-2xs ring-1 ring-amber-300'
+                        : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100 hover:scale-105'
                     }`}
+                    title={`${emoji} リアクション (${count}件)`}
                   >
-                    <span>{r.icon}</span>
+                    <span className="text-sm">{emoji}</span>
+                    <span className="text-[11px] font-semibold">{count}</span>
                   </button>
                 );
               })}
+
+              {/* Quick default emojis if not already active */}
+              {QUICK_EMOJIS.slice(0, 6).map((emoji) => {
+                if (reactionCounts[emoji]) return null; // already shown above
+                const isActive = userReaction === emoji;
+                return (
+                  <button
+                    key={emoji}
+                    onClick={() => handleToggleReaction(emoji)}
+                    className={`flex items-center justify-center text-sm w-8 h-8 rounded-full border transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-amber-100 text-amber-900 border-amber-400 font-bold scale-110 shadow-2xs'
+                        : 'bg-stone-50 border-stone-200/80 hover:bg-amber-100/50 hover:scale-105 text-stone-700'
+                    }`}
+                  >
+                    <span>{emoji}</span>
+                  </button>
+                );
+              })}
+
+              {/* Add Emoji Plus Button */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className={`flex items-center justify-center w-8 h-8 rounded-full border text-xs transition-all cursor-pointer ${
+                    showEmojiPicker
+                      ? 'bg-amber-500 text-white border-amber-600 scale-105 shadow-2xs'
+                      : 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300'
+                  }`}
+                  title="全絵文字からリアクションを追加"
+                >
+                  <span className="font-bold text-sm">＋</span>
+                </button>
+
+                {/* All Emoji Picker Popover */}
+                {showEmojiPicker && (
+                  <div className="absolute bottom-10 left-0 z-40 bg-white border border-stone-200 rounded-2xl shadow-xl p-3 w-72 max-w-[85vw] space-y-3 animate-fade-in">
+                    <div className="flex items-center justify-between pb-1 border-b border-stone-100">
+                      <span className="text-xs font-bold text-stone-800">絵文字を選択</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowEmojiPicker(false)}
+                        className="text-stone-400 hover:text-stone-700 text-xs font-bold p-1"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Emoji Categories */}
+                    <div className="max-h-52 overflow-y-auto space-y-2.5 pr-1 text-left">
+                      {EXTENDED_EMOJI_CATEGORIES.map((cat) => (
+                        <div key={cat.name}>
+                          <span className="text-[10px] font-bold text-stone-500 block mb-1">{cat.name}</span>
+                          <div className="flex flex-wrap gap-1">
+                            {cat.emojis.map((em) => (
+                              <button
+                                key={em}
+                                type="button"
+                                onClick={() => handleToggleReaction(em)}
+                                className="w-8 h-8 flex items-center justify-center text-base rounded-xl hover:bg-amber-100/70 hover:scale-110 transition-all cursor-pointer"
+                              >
+                                {em}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Custom Emoji Direct Input */}
+                    <div className="pt-2 border-t border-stone-100 flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        placeholder="任意の絵文字を直接入力..."
+                        value={customEmojiInput}
+                        onChange={(e) => setCustomEmojiInput(e.target.value)}
+                        className="flex-1 text-xs border border-stone-200 rounded-lg px-2.5 py-1 bg-stone-50 focus:outline-hidden focus:ring-1 focus:ring-amber-500"
+                      />
+                      <button
+                        type="button"
+                        disabled={!customEmojiInput.trim()}
+                        onClick={() => {
+                          if (customEmojiInput.trim()) {
+                            handleToggleReaction(customEmojiInput.trim());
+                            setCustomEmojiInput('');
+                          }
+                        }}
+                        className="text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded-lg transition-all disabled:opacity-40 cursor-pointer shrink-0"
+                      >
+                        送信
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Comment Count & Share */}

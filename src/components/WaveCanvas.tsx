@@ -5,8 +5,10 @@ import { Moment, WavePoint } from '../types';
 interface WaveCanvasProps {
   date: string;
   moments: Moment[];
-  onGenerateWithWave: (points: WavePoint[]) => void;
+  onGenerateWithWave?: (points: WavePoint[]) => void;
+  onPointsChange?: (points: WavePoint[]) => void;
   savedPoints?: WavePoint[];
+  isCompact?: boolean;
 }
 
 // Generate default smooth neutral line
@@ -19,7 +21,9 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
   date,
   moments,
   onGenerateWithWave,
+  onPointsChange,
   savedPoints,
+  isCompact = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -28,9 +32,16 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
   const [isDrawing, setIsDrawing] = useState(false);
   const [activeMoment, setActiveMoment] = useState<Moment | null>(null);
   const [canvasWidth, setCanvasWidth] = useState(700);
-  const canvasHeight = 260;
-  const paddingX = 40;
-  const paddingY = 30;
+  const canvasHeight = isCompact ? 170 : 260;
+  const paddingX = isCompact ? 30 : 40;
+  const paddingY = isCompact ? 20 : 30;
+
+  // Notify parent of point updates
+  useEffect(() => {
+    if (onPointsChange) {
+      onPointsChange(points);
+    }
+  }, [points, onPointsChange]);
 
   // Handle ResizeObserver for canvas width
   useEffect(() => {
@@ -468,20 +479,22 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
       )}
 
       {/* Bottom Action CTA */}
-      <div className="pt-2 flex items-center justify-between border-t border-amber-200/60">
-        <div className="text-xs text-stone-500">
-          波の振り幅の大きい時間帯の出来事をAIが優先的に日記のエピソードにします
-        </div>
+      {onGenerateWithWave && (
+        <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-amber-200/60">
+          <div className="text-[11px] sm:text-xs text-stone-500">
+            波の振り幅の大きい時間帯の出来事をAIが優先的に日記のエピソードにします
+          </div>
 
-        <button
-          id="btn-generate-with-wave"
-          onClick={() => onGenerateWithWave(points)}
-          className="flex items-center gap-2 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white font-medium px-5 py-2.5 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer text-xs"
-        >
-          <Sparkles className="w-4 h-4" />
-          この気分の波で日記を作成する
-        </button>
-      </div>
+          <button
+            id="btn-generate-with-wave"
+            onClick={() => onGenerateWithWave(points)}
+            className="flex items-center gap-2 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer text-xs shrink-0 whitespace-nowrap"
+          >
+            <Sparkles className="w-4 h-4" />
+            この気分の波で日記を作成する
+          </button>
+        </div>
+      )}
     </div>
   );
 };

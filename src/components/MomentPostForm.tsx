@@ -13,6 +13,9 @@ import {
   Camera,
   Music,
   Pin,
+  Globe,
+  Lock,
+  Users,
 } from 'lucide-react';
 import { MomentType, UserProfile } from '../types';
 import { addDoc, collection, db } from '../firebase';
@@ -45,6 +48,11 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
 
+  // Sharing & Category State
+  const [isPublic, setIsPublic] = useState(true);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Default', 'All']);
+  const [showCategoryMenu, setShowCategoryMenu] = useState(false);
+
   // Audio Recorder State
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -54,6 +62,28 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioFileInputRef = useRef<HTMLInputElement>(null);
+
+  const availableCategories = [
+    { id: 'Default', label: '共有する人', desc: '基本共有枠' },
+    { id: 'All', label: 'すべての人', desc: '全体公開' },
+    ...(user?.customShareCategories || []).map((catName) => ({
+      id: catName,
+      label: catName,
+      desc: 'カスタムグループ',
+    })),
+  ];
+
+  const toggleCategory = (catId: string) => {
+    if (selectedCategories.includes(catId)) {
+      if (selectedCategories.length === 1) {
+        alert('少なくとも1つの共有カテゴリを選択してください。');
+        return;
+      }
+      setSelectedCategories(selectedCategories.filter((c) => c !== catId));
+    } else {
+      setSelectedCategories([...selectedCategories, catId]);
+    }
+  };
 
   // Handle local image file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,6 +183,10 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
         content: content.trim() || (momentType === 'image' ? '📷 写真を投稿しました' : 'メモ投稿'),
         mediaUrl: mediaUrl || '',
         isPinned: isPinned,
+        isPublic: isPublic,
+        shareCategories: isPublic ? selectedCategories : [],
+        likesCount: 0,
+        commentsCount: 0,
         createdAt: new Date().toISOString(),
       };
 
@@ -362,7 +396,106 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 ml-auto">
+          <div className="flex flex-wrap items-center gap-2 shrink-0 ml-auto relative">
+            {/* Share Category Selector Popover Button */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowCategoryMenu(!showCategoryMenu)}
+                className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-xl border transition-all cursor-pointer whitespace-nowrap ${
+                  !isPublic
+                    ? 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200'
+                    : 'bg-amber-50 text-amber-900 border-amber-300 font-bold hover:bg-amber-100 shadow-2xs'
+                }`}
+                title="共有範囲・カテゴリ設定"
+              >
+                {!isPublic ? (
+                  <>
+                    <Lock className="w-3.5 h-3.5 text-stone-500 shrink-0" />
+                    <span>非公開</span>
+                  </>
+                ) : (
+                  <>
+                    <Users className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>共有 ({selectedCategories.length})</span>
+                  </>
+                )}
+              </button>
+
+              {/* Popover Menu */}
+              {showCategoryMenu && (
+                <div className="absolute right-0 bottom-9 z-30 bg-white border border-stone-200 rounded-2xl shadow-xl p-3 w-64 text-left space-y-3 animate-fade-in">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-stone-100">
+                    <span className="text-xs font-bold text-stone-800">共有設定・カテゴリ選択</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowCategoryMenu(false)}
+                      className="text-stone-400 hover:text-stone-700 text-xs font-bold p-0.5"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Public Toggle Switch */}
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-stone-50 border border-stone-200">
+                    <div className="flex items-center gap-1.5">
+                      {isPublic ? <Globe className="w-4 h-4 text-emerald-600" /> : <Lock className="w-4 h-4 text-stone-500" />}
+                      <span className="text-xs font-bold text-stone-800">
+                        {isPublic ? 'みんなの誌に公開' : '自分のみ非公開'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsPublic(!isPublic)}
+                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                        isPublic ? 'bg-amber-600' : 'bg-stone-300'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          isPublic ? 'translate-x-4' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Category Selection Checkboxes */}
+                  {isPublic && (
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[11px] font-bold text-stone-500 block">
+                        共有先カテゴリ (複数選択可能):
+                      </span>
+                      {availableCategories.map((cat) => {
+                        const isChecked = selectedCategories.includes(cat.id);
+                        return (
+                          <label
+                            key={cat.id}
+                            onClick={() => toggleCategory(cat.id)}
+                            className={`flex items-center justify-between p-2 rounded-xl border text-xs cursor-pointer transition-all ${
+                              isChecked
+                                ? 'bg-amber-50/80 border-amber-300 font-bold text-amber-900'
+                                : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {}}
+                                className="rounded text-amber-600 focus:ring-amber-500 h-3.5 w-3.5"
+                              />
+                              <span>{cat.label}</span>
+                            </div>
+                            <span className="text-[10px] text-stone-400 font-normal">{cat.desc}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <button
               type="button"
               onClick={() => setIsPinned(!isPinned)}

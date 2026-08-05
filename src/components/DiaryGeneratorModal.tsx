@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Sparkles, Check, Loader2, Volume2, Globe, Lock, X, RefreshCw, Wand2 } from 'lucide-react';
+import { Sparkles, Check, Loader2, Volume2, Globe, Lock, X, RefreshCw, Wand2, Activity } from 'lucide-react';
 import { Moment, DiaryStyle, UserProfile, WavePoint } from '../types';
 import { apiGenerateDiary, apiGenerateCover, apiGenerateTTS } from '../lib/geminiApi';
 import { addDoc, collection, db } from '../firebase';
+import { WaveCanvas } from './WaveCanvas';
 
 interface DiaryGeneratorModalProps {
   isOpen: boolean;
@@ -28,8 +29,29 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
   const [currentStep, setCurrentStep] = useState<string>('');
   const [generateTTSOption, setGenerateTTSOption] = useState<boolean>(true);
   const [isPublic, setIsPublic] = useState<boolean>(true);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Default', 'All']);
+  const [showWavePreview, setShowWavePreview] = useState<boolean>(true);
+  const [currentWavePoints, setCurrentWavePoints] = useState<WavePoint[] | undefined>(wavePoints);
 
   if (!isOpen) return null;
+
+  const availableCategories = [
+    { id: 'Default', label: '共有する人', desc: 'フォロワー・親しいメンバー' },
+    { id: 'All', label: 'すべての人', desc: '全体公開' },
+    ...(user?.customShareCategories || []).map((c) => ({ id: c, label: c, desc: 'カスタムグループ' })),
+  ];
+
+  const toggleCategory = (catId: string) => {
+    if (selectedCategories.includes(catId)) {
+      if (selectedCategories.length === 1) {
+        alert('少なくとも1つの共有カテゴリを選択してください。');
+        return;
+      }
+      setSelectedCategories(selectedCategories.filter((c) => c !== catId));
+    } else {
+      setSelectedCategories([...selectedCategories, catId]);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!moments || moments.length === 0) {
@@ -47,7 +69,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
         date: selectedDate,
         diaryStyle: style,
         userDisplayName: user?.displayName || 'ユーザー',
-        wavePoints,
+        wavePoints: currentWavePoints || wavePoints,
       });
 
       // Step 2: Generating Cover Image
@@ -89,6 +111,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
         coverImageUrl,
         audioNarrationUrl,
         isPublic,
+        shareCategories: isPublic ? selectedCategories : [],
         likesCount: 0,
         commentsCount: 0,
         momentIds,
@@ -115,12 +138,12 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-stone-50 rounded-2xl max-w-lg w-full border border-stone-200 shadow-xl p-6 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in">
+      <div className="bg-stone-50 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto border border-stone-200 shadow-xl p-5 sm:p-6 relative">
         <button
           onClick={onClose}
           disabled={isGenerating}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors z-10 cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -161,7 +184,38 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
             </p>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-4">
+            {/* Embedded Mood Wave Graph Section */}
+            <div className="bg-amber-50/60 rounded-2xl p-3 sm:p-4 border border-amber-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-amber-600" />
+                  <span className="text-xs font-bold text-stone-800">
+                    本日の気分の波 (WaveLog)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowWavePreview(!showWavePreview)}
+                  className="text-[11px] text-amber-700 font-semibold hover:underline cursor-pointer"
+                >
+                  {showWavePreview ? '波形を非表示' : '波形を表示・調整'}
+                </button>
+              </div>
+
+              {showWavePreview && (
+                <div className="pt-1 animate-fade-in">
+                  <WaveCanvas
+                    date={selectedDate}
+                    moments={moments}
+                    savedPoints={currentWavePoints || wavePoints}
+                    onPointsChange={(pts) => setCurrentWavePoints(pts)}
+                    isCompact={true}
+                  />
+                </div>
+              )}
+            </div>
+
             {/* Style Selector */}
             <div>
               <label className="text-xs font-bold text-stone-700 block mb-2">
@@ -207,21 +261,57 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
                 />
               </label>
 
-              <label className="flex items-center justify-between p-3 rounded-xl bg-white border border-stone-200 cursor-pointer hover:bg-stone-50">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-stone-600" />
-                  <div>
-                    <span className="text-xs font-semibold text-stone-800 block">みんなのタイムラインに公開</span>
-                    <span className="text-[10px] text-stone-500">他のユーザーに共有する</span>
+              <div className="space-y-2.5 p-3 rounded-xl bg-white border border-stone-200">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-stone-600" />
+                    <div>
+                      <span className="text-xs font-semibold text-stone-800 block">みんなの誌（タイムライン）に共有</span>
+                      <span className="text-[10px] text-stone-500">公開または選択カテゴリメンバーと共有</span>
+                    </div>
                   </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                  className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
-                />
-              </label>
+                  <input
+                    type="checkbox"
+                    checked={isPublic}
+                    onChange={(e) => setIsPublic(e.target.checked)}
+                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                  />
+                </label>
+
+                {isPublic && (
+                  <div className="pt-2 border-t border-stone-100 space-y-1.5">
+                    <span className="text-[11px] font-bold text-stone-600 block">
+                      共有するカテゴリを選択 (複数選択可能):
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      {availableCategories.map((cat) => {
+                        const isChecked = selectedCategories.includes(cat.id);
+                        return (
+                          <label
+                            key={cat.id}
+                            onClick={() => toggleCategory(cat.id)}
+                            className={`flex items-center justify-between p-2 rounded-lg border text-xs cursor-pointer transition-all ${
+                              isChecked
+                                ? 'bg-amber-50 border-amber-300 font-bold text-amber-900'
+                                : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {}}
+                                className="rounded text-amber-600 focus:ring-amber-500 h-3.5 w-3.5"
+                              />
+                              <span className="truncate">{cat.label}</span>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Action button */}

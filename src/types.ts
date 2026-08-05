@@ -6,6 +6,7 @@ export interface UserProfile {
   photoURL?: string;
   bio?: string;
   diaryStyle?: DiaryStyle;
+  customShareCategories?: string[]; // 最大3つのカスタム共有カテゴリ
   createdAt?: any;
 }
 
@@ -32,6 +33,10 @@ export interface Moment {
   content: string; // Text or caption/transcription
   mediaUrl?: string; // base64 or photo URL
   isPinned?: boolean; // 保護（ピン留め）スイッチ - 自動消去から保護
+  isPublic?: boolean; // 公開設定
+  shareCategories?: string[]; // 共有グループ ('All' | 'Default' | カスタム名)
+  likesCount?: number;
+  commentsCount?: number;
   createdAt: any;
 }
 
@@ -57,6 +62,7 @@ export interface Diary {
   audioNarrationUrl?: string;
   aiReflection?: string;
   isPublic: boolean;
+  shareCategories?: string[]; // 共有グループ ('All' | 'Default' | カスタム名)
   likesCount: number;
   commentsCount: number;
   momentIds?: string[];
@@ -68,7 +74,7 @@ export interface Diary {
   updatedAt?: any;
 }
 
-export type ReactionType = 'heart' | 'inspire' | 'cozy' | 'support';
+export type ReactionType = 'heart' | 'inspire' | 'cozy' | 'support' | string;
 
 export interface DiaryLike {
   id: string;

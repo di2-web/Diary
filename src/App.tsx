@@ -9,7 +9,7 @@ import { DiaryCard } from './components/DiaryCard';
 import { SnsTimeline } from './components/SnsTimeline';
 import { CalendarView } from './components/CalendarView';
 import { UserProfileModal } from './components/UserProfileModal';
-import { WaveCanvas } from './components/WaveCanvas';
+import { MyPage } from './components/MyPage';
 import { Moment, Diary, UserProfile, WavePoint } from './types';
 import {
   auth,
@@ -28,7 +28,7 @@ import {
 import { Sparkles, Calendar as CalendarIcon, Wand2, Plus, BookOpen } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'sns' | 'moments' | 'wave' | 'calendar'>('sns');
+  const [activeTab, setActiveTab] = useState<'sns' | 'moments' | 'mypage' | 'calendar'>('sns');
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -177,6 +177,22 @@ export default function App() {
     }
   };
 
+  const handleSaveWave = async (points: WavePoint[]) => {
+    setTodayWavePoints(points);
+    if (!currentUser?.uid) return;
+    try {
+      const docId = `${selectedDate}_${currentUser.uid}`;
+      await setDoc(doc(db, 'mood_waves', docId), {
+        date: selectedDate,
+        userId: currentUser.uid,
+        points,
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('Save wave error:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-stone-100 text-stone-900 font-sans antialiased selection:bg-amber-200 selection:text-stone-900 pb-28 md:pb-16">
       {/* Top Navbar */}
@@ -185,7 +201,7 @@ export default function App() {
         setActiveTab={setActiveTab}
         user={currentUser}
         onOpenAuth={() => setIsAuthModalOpen(true)}
-        onOpenProfile={() => setIsProfileModalOpen(true)}
+        onOpenProfile={() => setActiveTab('mypage')}
         onGenerateDiaryClick={() => {
           if (!currentUser) {
             setIsAuthModalOpen(true);
@@ -228,11 +244,17 @@ export default function App() {
 
               <div className="flex items-center gap-2 shrink-0">
                 <button
-                  onClick={() => setActiveTab('wave')}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-100/80 hover:bg-amber-200 px-3 py-1.5 rounded-xl transition-all cursor-pointer border border-amber-300/70 whitespace-nowrap shrink-0"
+                  onClick={() => {
+                    if (!currentUser) {
+                      setIsAuthModalOpen(true);
+                      return;
+                    }
+                    setIsGeneratorModalOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>気分の波を描く</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
+                  <span>日記を作成</span>
                 </button>
 
                 {todayMoments.length === 0 && (
@@ -303,40 +325,14 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3: Wave Canvas */}
-        {activeTab === 'wave' && (
-          <div className="space-y-6 max-w-4xl mx-auto">
-            {/* Date Selector Header */}
-            <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-amber-200 shadow-xs flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 shrink-0">
-                <CalendarIcon className="w-5 h-5 text-amber-600 shrink-0" />
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="rounded-xl border border-stone-300 px-3 py-1 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500 bg-stone-50 font-medium cursor-pointer shrink-0"
-                />
-              </div>
-
-              <span className="text-xs text-stone-500 shrink-0 whitespace-nowrap">
-                投稿数: <strong className="text-stone-800">{todayMoments.length}件</strong>
-              </span>
-            </div>
-
-            <WaveCanvas
-              date={selectedDate}
-              moments={todayMoments}
-              savedPoints={todayWavePoints}
-              onGenerateWithWave={(pts) => {
-                setTodayWavePoints(pts);
-                if (!currentUser) {
-                  setIsAuthModalOpen(true);
-                  return;
-                }
-                setIsGeneratorModalOpen(true);
-              }}
-            />
-          </div>
+        {/* Tab 3: My Page & Category Settings */}
+        {activeTab === 'mypage' && (
+          <MyPage
+            user={currentUser}
+            onUserUpdated={(updated) => setCurrentUser(updated)}
+            onSignOut={() => setCurrentUser(null)}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+          />
         )}
 
         {/* Tab 4: Calendar Archive */}

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Sparkles, BookOpen, Calendar, Globe, User, LogIn, Activity } from 'lucide-react';
+import { Sparkles, BookOpen, Calendar, Globe, User, LogIn } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface NavbarProps {
-  activeTab: 'sns' | 'moments' | 'wave' | 'calendar';
-  setActiveTab: (tab: 'sns' | 'moments' | 'wave' | 'calendar') => void;
+  activeTab: 'sns' | 'moments' | 'mypage' | 'calendar';
+  setActiveTab: (tab: 'sns' | 'moments' | 'mypage' | 'calendar') => void;
   user: UserProfile | null;
   onOpenAuth: () => void;
   onOpenProfile: () => void;
@@ -70,19 +70,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
-            id="nav-tab-wave"
-            onClick={() => setActiveTab('wave')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === 'wave'
-                ? 'bg-amber-500 text-white shadow-2xs font-semibold'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
-            }`}
-          >
-            <Activity className="w-3.5 h-3.5" />
-            気分の波
-          </button>
-
-          <button
             id="nav-tab-calendar"
             onClick={() => setActiveTab('calendar')}
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
@@ -93,6 +80,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Calendar className="w-3.5 h-3.5 text-stone-600" />
             カレンダー
+          </button>
+
+          <button
+            id="nav-tab-mypage"
+            onClick={() => setActiveTab('mypage')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'mypage'
+                ? 'bg-white text-stone-900 shadow-2xs font-semibold'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+            }`}
+          >
+            <User className="w-3.5 h-3.5 text-stone-600" />
+            マイページ
           </button>
         </nav>
 
