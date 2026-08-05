@@ -22,7 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   hasMomentsToday,
 }) => {
   return (
-    <header className="sticky top-0 z-40 bg-amber-50/90 backdrop-blur-md border-b border-amber-200/60 shadow-xs">
+    <header className="sticky top-0 z-40 bg-stone-50/95 backdrop-blur-md border-b border-stone-200/80 shadow-2xs">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand Logo */}
@@ -30,60 +30,60 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => setActiveTab('sns')}
           className="flex items-center gap-2.5 cursor-pointer group select-none"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-rose-500 to-amber-400 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-            <Sparkles className="w-5 h-5 animate-pulse" />
+          <div className="w-9 h-9 rounded-xl bg-stone-800 flex items-center justify-center text-amber-100 shadow-2xs group-hover:bg-stone-900 transition-colors">
+            <BookOpen className="w-5 h-5" />
           </div>
           <div>
-            <span className="font-serif font-bold text-xl text-stone-800 tracking-tight block">
-              LifeLog AI
+            <span className="font-serif font-bold text-lg text-stone-900 tracking-tight block">
+              LifeLog
             </span>
             <span className="text-[10px] text-stone-500 font-medium tracking-wide -mt-1 block">
-              つぶやきから生まれるAI日記SNS
+              日々の記録と手帖
             </span>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="hidden md:flex items-center gap-1 bg-stone-200/50 p-1 rounded-full border border-stone-300/40">
+        <nav className="hidden md:flex items-center gap-1 bg-stone-200/60 p-1 rounded-full border border-stone-300/40">
           <button
             id="nav-tab-sns"
             onClick={() => setActiveTab('sns')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
               activeTab === 'sns'
-                ? 'bg-white text-stone-800 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/40'
+                ? 'bg-white text-stone-900 shadow-2xs'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
             }`}
           >
-            <Globe className="w-4 h-4 text-amber-600" />
-            みんなのDiary
+            <Globe className="w-3.5 h-3.5 text-stone-600" />
+            タイムライン
           </button>
 
           <button
             id="nav-tab-moments"
             onClick={() => setActiveTab('moments')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-all relative ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all relative ${
               activeTab === 'moments'
-                ? 'bg-white text-stone-800 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/40'
+                ? 'bg-white text-stone-900 shadow-2xs'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
             }`}
           >
-            <BookOpen className="w-4 h-4 text-rose-500" />
+            <BookOpen className="w-3.5 h-3.5 text-stone-600" />
             きょうの記録
             {hasMomentsToday && (
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping absolute top-2 right-2" />
+              <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse absolute top-2 right-2" />
             )}
           </button>
 
           <button
             id="nav-tab-calendar"
             onClick={() => setActiveTab('calendar')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
               activeTab === 'calendar'
-                ? 'bg-white text-stone-800 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/40'
+                ? 'bg-white text-stone-900 shadow-2xs'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
             }`}
           >
-            <Calendar className="w-4 h-4 text-emerald-600" />
+            <Calendar className="w-3.5 h-3.5 text-stone-600" />
             カレンダー
           </button>
         </nav>
@@ -93,11 +93,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="btn-generate-diary-nav"
             onClick={onGenerateDiaryClick}
-            className="flex items-center gap-2 bg-gradient-to-r from-amber-600 via-rose-500 to-amber-500 text-white font-medium text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl shadow-md hover:shadow-lg hover:brightness-105 active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-amber-200" />
-            <span className="hidden sm:inline">AI日記を自動生成</span>
-            <span className="sm:hidden">AI日記</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+            <span>日記を作成</span>
           </button>
 
           {user ? (

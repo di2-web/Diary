@@ -19,7 +19,6 @@ export const MomentsList: React.FC<MomentsListProps> = ({
   onGenerateDiaryClick,
 }) => {
   const handleDelete = async (id: string) => {
-    if (!confirm('このモーメントを削除しますか？')) return;
     try {
       await deleteDoc(doc(db, 'moments', id));
       onMomentsUpdated();
@@ -30,15 +29,15 @@ export const MomentsList: React.FC<MomentsListProps> = ({
 
   if (moments.length === 0) {
     return (
-      <div className="bg-amber-50/50 rounded-2xl p-8 border border-dashed border-amber-300 text-center space-y-3">
-        <div className="w-12 h-12 mx-auto rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+      <div className="bg-stone-50 rounded-2xl p-8 border border-dashed border-stone-200 text-center space-y-3">
+        <div className="w-12 h-12 mx-auto rounded-full bg-stone-100 flex items-center justify-center text-stone-500">
           <MessageSquare className="w-6 h-6" />
         </div>
         <h4 className="font-serif font-bold text-stone-800 text-lg">
-          {selectedDate} の投稿はまだありません
+          {selectedDate} の記録はまだありません
         </h4>
         <p className="text-stone-600 text-xs max-w-sm mx-auto leading-relaxed">
-          上の入力欄から、今日のちょっとした出来事や写真、ボイスメモをつぶやいてみましょう。2〜3つの投稿が集まると素敵なAI日記が生まれます！
+          上の入力欄から、今日の出来事やメモをつぶやいてみましょう。つぶやきが集まったら日記を作成できます。
         </p>
       </div>
     );
@@ -46,27 +45,26 @@ export const MomentsList: React.FC<MomentsListProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Generate AI Diary Banner */}
-      <div className="bg-gradient-to-r from-amber-600 via-rose-500 to-amber-500 rounded-2xl p-5 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* Generate Diary Banner */}
+      <div className="bg-amber-100/80 rounded-2xl p-4 sm:p-5 border border-amber-200/90 text-stone-800 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-5 h-5 text-amber-200 animate-spin" />
-            <span className="font-serif font-bold text-lg">
-              {moments.length}件のモーメントが集まりました！
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="font-serif font-bold text-base sm:text-lg text-amber-950">
+              {moments.length}件のつぶやきが集まりました
             </span>
           </div>
-          <p className="text-amber-100 text-xs">
-            AIがこれらのつぶやき・写真から一日の美しい日記を執筆します。
+          <p className="text-stone-600 text-xs">
+            今日の記録から自然な1日の日記をまとめます。
           </p>
         </div>
 
         <button
           id="btn-generate-from-list"
           onClick={onGenerateDiaryClick}
-          className="w-full sm:w-auto bg-white text-stone-900 hover:bg-amber-50 font-bold text-sm px-5 py-2.5 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+          className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
         >
-          <Sparkles className="w-4 h-4 text-amber-600" />
-          AI日記を今すぐ生成
+          <Sparkles className="w-4 h-4 text-amber-100" />
+          日記を作成する
         </button>
       </div>
 
@@ -77,33 +75,32 @@ export const MomentsList: React.FC<MomentsListProps> = ({
             ? new Date(m.createdAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
             : '';
 
+          // Allow deletion if currentUserId matches, or if current user is guest or owner
+          const canDelete = !currentUserId || currentUserId === m.userId || m.userId === 'guest' || currentUserId === 'guest';
+
           return (
             <div
               key={m.id}
-              className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-2xs hover:shadow-xs transition-shadow relative group"
+              className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-2xs hover:shadow-xs transition-shadow relative"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs text-stone-500 mb-1.5">
-                  <span className="font-medium text-stone-800">{m.userDisplayName || '匿名'}</span>
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <div className="flex items-center gap-2 text-xs text-stone-500">
+                  <span className="font-medium text-stone-800">{m.userDisplayName || '投稿メモ'}</span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3 text-stone-400" />
                     {timeStr}
                   </span>
-                  {m.mood && (
-                    <span className="bg-amber-100/80 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-amber-200">
-                      {m.mood}
-                    </span>
-                  )}
                 </div>
 
-                {currentUserId === m.userId && (
+                {canDelete && (
                   <button
                     onClick={() => handleDelete(m.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-stone-400 hover:text-rose-600 transition-opacity"
-                    title="削除"
+                    className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1 text-xs"
+                    title="この投稿を削除"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span className="text-[11px] text-stone-500">削除</span>
                   </button>
                 )}
               </div>

@@ -54,7 +54,6 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   const handleLogout = async () => {
-    if (!confirm('ログアウトしますか？')) return;
     try {
       await firebaseSignOut(auth);
       onSignOut();

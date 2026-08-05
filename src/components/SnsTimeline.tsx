@@ -18,7 +18,6 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
   const [diaries, setDiaries] = useState<Diary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedMoodFilter, setSelectedMoodFilter] = useState<string>('all');
 
   useEffect(() => {
     // Fetch public diaries
@@ -53,7 +52,6 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
   }, []);
 
   const handleDeleteDiary = async (id: string) => {
-    if (!confirm('この日記を削除しますか？')) return;
     try {
       await deleteDoc(doc(db, 'diaries', id));
     } catch (err) {
@@ -65,47 +63,40 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
     const matchesSearch =
       d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       d.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.userDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (d.tags && d.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())));
+      d.userDisplayName.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesMood =
-      selectedMoodFilter === 'all' || (d.mood && d.mood.includes(selectedMoodFilter));
-
-    return matchesSearch && matchesMood;
+    return matchesSearch;
   });
-
-  const moodsList = ['all', '穏やか', 'まったり', '達成感', 'ひらめき', 'おいしい', 'センチメンタル'];
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* SNS Hero Header */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 translate-x-10 -translate-y-10 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Header Banner */}
+      <div className="bg-stone-800 text-stone-100 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-300 text-xs font-semibold px-3 py-1 rounded-full border border-amber-500/30 mb-3">
-            <Globe className="w-3.5 h-3.5" /> みんなのAI日記SNS
+          <div className="inline-flex items-center gap-1.5 bg-stone-700 text-amber-200 text-xs font-medium px-3 py-1 rounded-full mb-3">
+            <Globe className="w-3.5 h-3.5" /> みんなの記録手帖
           </div>
-          <h1 className="font-serif font-bold text-2xl sm:text-3xl text-amber-100 tracking-tight leading-snug mb-2">
-            それぞれの今日が、美しい物語になる。
+          <h1 className="font-serif font-bold text-2xl sm:text-3xl text-white tracking-tight leading-snug mb-2">
+            それぞれの今日が、静かに紡ぐ日常。
           </h1>
           <p className="text-stone-300 text-xs sm:text-sm leading-relaxed mb-4">
-            AIが個々の日常のつぶやきから執筆した公開日記のタイムライン。温かいリアクションやコメントで交流しましょう。
+            日々のつぶやきからまとめた公開日記のタイムラインです。温かいコメントで互いの記録に寄り添いましょう。
           </p>
 
           <button
             onClick={onNavigateToMoments}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-rose-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-amber-200" />
-            自分の今日の日記をつくる
+            自分の記録を付ける
           </button>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs flex gap-3 items-center justify-between">
         {/* Search */}
-        <div className="relative w-full sm:w-72">
+        <div className="relative w-full">
           <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -114,30 +105,6 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
             placeholder="キーワードやタグで検索..."
             className="w-full pl-9 pr-4 py-2 rounded-xl border border-stone-200 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 bg-stone-50"
           />
-        </div>
-
-        {/* Mood Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          <span className="text-xs text-stone-400 shrink-0 flex items-center gap-1 mr-1">
-            <Filter className="w-3 h-3" /> 気分:
-          </span>
-          {moodsList.map((m) => {
-            const isSelected = selectedMoodFilter === m;
-            const label = m === 'all' ? 'すべて' : m;
-            return (
-              <button
-                key={m}
-                onClick={() => setSelectedMoodFilter(m)}
-                className={`text-xs px-2.5 py-1 rounded-full border shrink-0 transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-amber-600 text-white border-amber-600 font-bold shadow-2xs'
-                    : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
         </div>
       </div>
 
@@ -154,9 +121,9 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
             日記が見つかりませんでした
           </h3>
           <p className="text-stone-600 text-xs max-w-sm mx-auto">
-            {searchQuery || selectedMoodFilter !== 'all'
+            {searchQuery
               ? '検索条件に一致する公開日記がありません。'
-              : 'まだ公開された日記がありません。最初のAI日記を作成して共有してみましょう！'}
+              : 'まだ公開された日記がありません。最初の日記を作成して共有してみましょう！'}
           </p>
           <button
             onClick={onNavigateToMoments}

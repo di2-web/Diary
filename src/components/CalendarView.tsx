@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Diary, Moment, UserProfile } from '../types';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Sparkles, BookOpen, Clock } from 'lucide-react';
-import { collection, query, where, onSnapshot, db } from '../firebase';
+import { collection, query, where, onSnapshot, db, deleteDoc, doc } from '../firebase';
 import { DiaryCard } from './DiaryCard';
 
 interface CalendarViewProps {
@@ -21,6 +21,15 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     new Date().toISOString().split('T')[0]
   );
   const [selectedDiary, setSelectedDiary] = useState<Diary | null>(null);
+
+  const handleDeleteDiary = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'diaries', id));
+      setSelectedDiary(null);
+    } catch (err) {
+      console.error('Delete diary error:', err);
+    }
+  };
 
   // Listen to user's diaries
   useEffect(() => {
@@ -42,6 +51,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       setUserDiaries(map);
       if (selectedDate && map[selectedDate]) {
         setSelectedDiary(map[selectedDate]);
+      } else if (selectedDate && !map[selectedDate]) {
+        setSelectedDiary(null);
       }
     });
 
@@ -211,18 +222,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             diary={selectedDiary}
             currentUser={currentUser}
             onRequireAuth={onRequireAuth}
+            onDeleteDiary={handleDeleteDiary}
             isSingleView={true}
           />
         ) : (
           <div className="bg-stone-50 rounded-2xl p-8 border border-dashed border-stone-200 text-center space-y-2">
             <p className="text-stone-500 text-xs">
-              {selectedDate} のAI日記はまだ生成されていません。
+              {selectedDate} の日記はまだ作成されていません。
             </p>
             <button
               onClick={() => onSelectDate(selectedDate)}
               className="bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs px-4 py-2 rounded-xl transition-all shadow-2xs"
             >
-              この日のつぶやきを記録・AI日記を生成する
+              この日のつぶやきを記録・日記を作成する
             </button>
           </div>
         )}

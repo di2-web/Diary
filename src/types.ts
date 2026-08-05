@@ -1,4 +1,4 @@
-export type DiaryStyle = 'poetic' | 'warm' | 'novelist' | 'funny' | 'concise' | 'empathic';
+export type DiaryStyle = 'natural' | 'neat' | 'casual' | 'concise' | 'poetic' | 'warm' | 'novelist' | 'funny' | 'empathic';
 
 export interface UserProfile {
   uid: string;
@@ -20,7 +20,6 @@ export interface Moment {
   type: MomentType;
   content: string; // Text or caption/transcription
   mediaUrl?: string; // base64 or photo URL
-  mood?: string;
   createdAt: any;
 }
 
@@ -33,8 +32,6 @@ export interface Diary {
   title: string;
   content: string; // Markdown
   summary: string;
-  mood: string;
-  tags: string[];
   coverImageUrl?: string;
   audioNarrationUrl?: string;
   aiReflection?: string;

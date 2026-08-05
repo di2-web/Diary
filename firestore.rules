@@ -1,55 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    // Users
-    match /users/{userId} {
-      allow read: if true;
-      allow create, update: if isOwner(userId);
-      allow delete: if isOwner(userId);
-    }
-
-    // Moments
-    match /moments/{momentId} {
-      allow read: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid);
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
-    }
-
-    // Diaries
-    match /diaries/{diaryId} {
-      allow read: if (resource != null && resource.data.isPublic == true) ||
-                  (isSignedIn() && (resource == null || resource.data.userId == request.auth.uid));
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && (
-        resource.data.userId == request.auth.uid ||
-        // Allow updating likes/comments counts on public diaries
-        (resource.data.isPublic == true && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount', 'commentsCount']))
-      );
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
-    }
-
-    // Likes
-    match /diary_likes/{likeId} {
-      allow read: if true;
-      allow create, update, delete: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-    }
-
-    // Comments
-    match /diary_comments/{commentId} {
-      allow read: if true;
-      allow create: if isSignedIn() && (
-        request.resource.data.userId == request.auth.uid ||
-        request.resource.data.isAiComment == true
-      );
-      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }

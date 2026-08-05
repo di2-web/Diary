@@ -137,19 +137,16 @@ export default function App() {
       {
         content: '朝からお気に入りの路地裏カフェへ。挽きたての珈琲の香ばしいかおりと静かなジャズに包まれて穏やかなスタート。',
         type: 'text' as const,
-        mood: 'まったり',
         mediaUrl: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80',
       },
       {
         content: '午後は散歩がてら大きな公園へ。木の葉の間から落ちる木漏れ日がすごく綺麗でリフレッシュできた！',
         type: 'image' as const,
-        mood: '穏やか',
         mediaUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&auto=format&fit=crop&q=80',
       },
       {
         content: '帰り道の夕焼け空がグラデーションで絵画みたいだった。今日も一日無事に過ごせて感謝。',
         type: 'text' as const,
-        mood: '感動',
         mediaUrl: '',
       },
     ];
@@ -163,14 +160,12 @@ export default function App() {
         type: s.type,
         content: s.content,
         mediaUrl: s.mediaUrl,
-        mood: s.mood,
         createdAt: new Date().toISOString(),
       });
     }
   };
 
   const handleDeleteTodayDiary = async (diaryId: string) => {
-    if (!confirm('このAI日記を削除しますか？')) return;
     try {
       await deleteDoc(doc(db, 'diaries', diaryId));
       setTodayDiary(null);
@@ -194,7 +189,6 @@ export default function App() {
             return;
           }
           if (todayMoments.length === 0) {
-            alert('今日のつぶやき（モーメント）がまだありません。まずは下から写真やメモを投稿しましょう！');
             setActiveTab('moments');
             return;
           }

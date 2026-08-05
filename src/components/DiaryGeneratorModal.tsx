@@ -21,7 +21,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
   user,
   onDiaryCreated,
 }) => {
-  const [style, setStyle] = useState<DiaryStyle>(user?.diaryStyle || 'poetic');
+  const [style, setStyle] = useState<DiaryStyle>(user?.diaryStyle || 'natural');
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentStep, setCurrentStep] = useState<string>('');
   const [generateTTSOption, setGenerateTTSOption] = useState<boolean>(true);
@@ -31,7 +31,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
 
   const handleGenerate = async () => {
     if (!moments || moments.length === 0) {
-      alert('日記を生成するための投稿（モーメント）がありません。先につぶやきを投稿してください。');
+      console.warn('日記を生成するための投稿がありません。先につぶやきを投稿してください。');
       return;
     }
 
@@ -39,7 +39,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
       setIsGenerating(true);
 
       // Step 1: Writing Diary with Gemini 3.6 Flash
-      setCurrentStep('投稿メッセージと写真を解析し、AI日記を執筆中...');
+      setCurrentStep('投稿メッセージを整理し、日記文章を作成中...');
       const diaryResult = await apiGenerateDiary({
         moments,
         date: selectedDate,
@@ -47,8 +47,8 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
         userDisplayName: user?.displayName || 'ユーザー',
       });
 
-      // Step 2: Generating Cover Image with Gemini Image Generation
-      setCurrentStep('今日の一日を象徴するカバーアートを生成中...');
+      // Step 2: Generating Cover Image
+      setCurrentStep('今日の一日を表すカバー写真を生成中...');
       let coverImageUrl = '';
       try {
         coverImageUrl = await apiGenerateCover(diaryResult.imagePrompt);
@@ -57,10 +57,10 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
         coverImageUrl = `https://picsum.photos/seed/${encodeURIComponent(selectedDate)}/1200/675`;
       }
 
-      // Step 3: Optional Gemini TTS Voice Narration
+      // Step 3: Optional TTS Voice Narration
       let audioNarrationUrl = '';
       if (generateTTSOption) {
-        setCurrentStep('AI朗読ボイス（Gemini TTS）を作成中...');
+        setCurrentStep('朗読音声を作成中...');
         try {
           audioNarrationUrl = await apiGenerateTTS(
             `${diaryResult.title}。${diaryResult.summary}`,
@@ -83,9 +83,6 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
         title: diaryResult.title,
         content: diaryResult.content,
         summary: diaryResult.summary,
-        mood: diaryResult.mood,
-        tags: diaryResult.tags || ['日常', 'AI日記'],
-        aiReflection: diaryResult.aiReflection,
         coverImageUrl,
         audioNarrationUrl,
         isPublic,
@@ -101,7 +98,6 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
       onClose();
     } catch (error: any) {
       console.error('Error in handleGenerate:', error);
-      alert(`生成エラー: ${error?.message || 'AI日記の生成に失敗しました'}`);
     } finally {
       setIsGenerating(false);
       setCurrentStep('');
@@ -109,17 +105,15 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
   };
 
   const styleOptions: { id: DiaryStyle; label: string; desc: string; icon: string }[] = [
-    { id: 'poetic', label: 'ポエティック', desc: '叙形的で美しい表現。言葉の響きを大切に', icon: '🌸' },
-    { id: 'warm', label: '温かい語り', desc: '親しい友人に語りかけるような心和む文脈', icon: '☕' },
-    { id: 'novelist', label: '短編小説風', desc: 'ドラマチックな情景と心理描写で魅せる', icon: '📖' },
-    { id: 'funny', label: 'ユーモア', desc: 'くすっと笑えて親しみやすいカジュアルスタイル', icon: '🎈' },
-    { id: 'concise', label: 'シンプル', desc: 'ポイントを押さえたすっきり読みやすい文体', icon: '✨' },
-    { id: 'empathic', label: '寄り添い系', desc: '自己肯定感が高まる優しい言葉のリスナー', icon: '🫂' },
+    { id: 'natural', label: '言葉をそのまま活かす', desc: '自分の話し言葉や投稿の雰囲気をそのまま尊重', icon: '🍃' },
+    { id: 'neat', label: 'すっきり整理', desc: '出来事の流れをわかりやすく丁寧にまとめる', icon: '✍️' },
+    { id: 'casual', label: 'カジュアル', desc: '親しみやすく素直な日誌スタイル', icon: '☕' },
+    { id: 'concise', label: 'シンプル', desc: '出来事と感想をコンパクトに整理', icon: '📝' },
   ];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-amber-50 rounded-2xl max-w-lg w-full border border-amber-200 shadow-2xl p-6 relative">
+      <div className="bg-stone-50 rounded-2xl max-w-lg w-full border border-stone-200 shadow-xl p-6 relative">
         <button
           onClick={onClose}
           disabled={isGenerating}
@@ -129,15 +123,15 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
         </button>
 
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-rose-500 to-amber-400 flex items-center justify-center text-white shadow-md">
-            <Wand2 className="w-6 h-6 animate-pulse" />
+          <div className="w-10 h-10 rounded-xl bg-stone-800 flex items-center justify-center text-amber-100 shadow-2xs">
+            <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-serif font-bold text-xl text-stone-800">
-              {selectedDate} のAI日記を作成
+            <h3 className="font-serif font-bold text-lg text-stone-900">
+              {selectedDate} の日記を作成
             </h3>
-            <p className="text-stone-600 text-xs">
-              本日投稿された <span className="font-bold text-amber-700">{moments.length}件</span> のつぶやきから執筆します
+            <p className="text-stone-500 text-xs">
+              本日投稿された <span className="font-bold text-stone-800">{moments.length}件</span> のつぶやきから整理します
             </p>
           </div>
         </div>
@@ -145,16 +139,16 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
         {/* Loading Overlay State */}
         {isGenerating ? (
           <div className="py-10 text-center space-y-4">
-            <div className="relative w-20 h-20 mx-auto">
-              <div className="absolute inset-0 rounded-full border-4 border-amber-200 border-t-amber-600 animate-spin" />
-              <div className="absolute inset-2 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-                <Sparkles className="w-8 h-8 animate-pulse" />
+            <div className="relative w-16 h-16 mx-auto">
+              <div className="absolute inset-0 rounded-full border-3 border-stone-200 border-t-amber-600 animate-spin" />
+              <div className="absolute inset-2 rounded-full bg-stone-100 flex items-center justify-center text-amber-600">
+                <Sparkles className="w-6 h-6 animate-pulse" />
               </div>
             </div>
-            <h4 className="font-serif font-bold text-lg text-stone-800">
-              AIが日記を書いています...
+            <h4 className="font-serif font-bold text-base text-stone-800">
+              日記を作成しています...
             </h4>
-            <p className="text-amber-800 text-xs font-medium bg-amber-100/80 px-4 py-2 rounded-xl inline-block border border-amber-300 animate-pulse">
+            <p className="text-stone-700 text-xs font-medium bg-stone-200/70 px-4 py-2 rounded-xl inline-block border border-stone-300">
               {currentStep}
             </p>
           </div>
@@ -163,7 +157,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
             {/* Style Selector */}
             <div>
               <label className="text-xs font-bold text-stone-700 block mb-2">
-                執筆スタイル（文章の雰囲気）:
+                日記のまとめ方（文章の雰囲気）:
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {styleOptions.map((opt) => (
@@ -173,8 +167,8 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
                     onClick={() => setStyle(opt.id)}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                       style === opt.id
-                        ? 'bg-white border-amber-500 ring-2 ring-amber-500/30 shadow-2xs'
-                        : 'bg-amber-100/30 border-amber-200/60 hover:bg-white'
+                        ? 'bg-white border-stone-800 ring-2 ring-stone-800/10 shadow-2xs'
+                        : 'bg-stone-100/60 border-stone-200 hover:bg-white'
                     }`}
                   >
                     <div className="flex items-center gap-1.5 font-bold text-xs text-stone-800 mb-0.5">
@@ -188,13 +182,13 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
             </div>
 
             {/* Options */}
-            <div className="space-y-3 pt-2 border-t border-amber-200/60">
+            <div className="space-y-2.5 pt-2 border-t border-stone-200">
               <label className="flex items-center justify-between p-3 rounded-xl bg-white border border-stone-200 cursor-pointer hover:bg-stone-50">
                 <div className="flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-rose-500" />
+                  <Volume2 className="w-4 h-4 text-stone-600" />
                   <div>
-                    <span className="text-xs font-semibold text-stone-800 block">AI朗読ボイスを同時生成</span>
-                    <span className="text-[10px] text-stone-500">Gemini Voiceで日記を朗読</span>
+                    <span className="text-xs font-semibold text-stone-800 block">朗読音声を生成</span>
+                    <span className="text-[10px] text-stone-500">音声で日記を聴けるようにする</span>
                   </div>
                 </div>
                 <input
@@ -207,10 +201,10 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
 
               <label className="flex items-center justify-between p-3 rounded-xl bg-white border border-stone-200 cursor-pointer hover:bg-stone-50">
                 <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-emerald-600" />
+                  <Globe className="w-4 h-4 text-stone-600" />
                   <div>
-                    <span className="text-xs font-semibold text-stone-800 block">みんなのSNSタイムラインに公開</span>
-                    <span className="text-[10px] text-stone-500">他のユーザーと共有してリアクションをもらう</span>
+                    <span className="text-xs font-semibold text-stone-800 block">みんなのタイムラインに公開</span>
+                    <span className="text-[10px] text-stone-500">他のユーザーに共有する</span>
                   </div>
                 </div>
                 <input
@@ -226,10 +220,10 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
             <button
               id="btn-confirm-generate-diary"
               onClick={handleGenerate}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-600 via-rose-500 to-amber-500 text-white font-bold text-sm shadow-md hover:shadow-lg hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm shadow-2xs active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Sparkles className="w-5 h-5 text-amber-200" />
-              AI日記の生成を開始する
+              <Sparkles className="w-4 h-4 text-amber-100" />
+              日記を作成する
             </button>
           </div>
         )}

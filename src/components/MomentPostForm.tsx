@@ -31,15 +31,6 @@ const PRESET_PHOTOS = [
   { url: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&auto=format&fit=crop&q=80', label: '夜の読書タイム 📖' },
 ];
 
-const MOODS = [
-  { label: '穏やか', emoji: '🌸', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { label: 'まったり', emoji: '☕', color: 'bg-amber-100 text-amber-800 border-amber-300' },
-  { label: '達成感', emoji: '🎉', color: 'bg-rose-100 text-rose-800 border-rose-300' },
-  { label: 'ひらめき', emoji: '💡', color: 'bg-sky-100 text-sky-800 border-sky-300' },
-  { label: 'おいしい', emoji: '🍰', color: 'bg-orange-100 text-orange-800 border-orange-300' },
-  { label: 'センチメンタル', emoji: '🌙', color: 'bg-purple-100 text-purple-800 border-purple-300' },
-];
-
 export const MomentPostForm: React.FC<MomentPostFormProps> = ({
   user,
   selectedDate,
@@ -49,7 +40,6 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
   const [content, setContent] = useState('');
   const [momentType, setMomentType] = useState<MomentType>('text');
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
-  const [selectedMood, setSelectedMood] = useState<string>('まったり');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
 
@@ -112,7 +102,6 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
       }, 1000);
     } catch (err) {
       console.error('Mic access denied:', err);
-      alert('マイクヘのアクセスが許可されませんでした。マイクの権限を確認してください。');
     }
   };
 
@@ -146,7 +135,6 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
         type: momentType,
         content: content.trim() || (momentType === 'image' ? '📷 写真を投稿しました' : 'メモ投稿'),
         mediaUrl: mediaUrl || '',
-        mood: selectedMood,
         createdAt: new Date().toISOString(),
       };
 
@@ -160,7 +148,6 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
       onMomentAdded();
     } catch (error) {
       console.error('Error posting moment:', error);
-      alert('投稿に失敗しました。');
     } finally {
       setIsSubmitting(false);
     }
@@ -170,11 +157,10 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
     <div className="bg-white rounded-2xl p-5 border border-amber-200/80 shadow-md">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-serif font-bold text-stone-800 text-base flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-500" />
-          {selectedDate} の出来事をつぶやく
+          {selectedDate} の出来事・メモ
         </h3>
-        <span className="text-xs text-stone-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-          AI日記の材料になります ✨
+        <span className="text-xs text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full border border-stone-200">
+          きょうのログ
         </span>
       </div>
 
@@ -291,33 +277,6 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
             </div>
           </div>
         )}
-
-        {/* Mood Selectors */}
-        <div>
-          <label className="text-xs font-medium text-stone-600 block mb-1.5">
-            今の気分・雰囲気:
-          </label>
-          <div className="flex flex-wrap gap-1.5">
-            {MOODS.map((m) => {
-              const isSelected = selectedMood === m.label;
-              return (
-                <button
-                  key={m.label}
-                  type="button"
-                  onClick={() => setSelectedMood(m.label)}
-                  className={`text-xs px-3 py-1 rounded-full border transition-all cursor-pointer ${
-                    isSelected
-                      ? `${m.color} font-bold shadow-2xs scale-102`
-                      : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
-                  }`}
-                >
-                  <span className="mr-1">{m.emoji}</span>
-                  {m.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Input Tools & Submit Button */}
         <div className="flex items-center justify-between pt-2 border-t border-stone-100">

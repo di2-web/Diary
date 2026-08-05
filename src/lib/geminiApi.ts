@@ -11,8 +11,6 @@ export interface GeneratedDiaryResponse {
   title: string;
   content: string;
   summary: string;
-  mood: string;
-  tags: string[];
   aiReflection: string;
   imagePrompt: string;
 }

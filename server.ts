@@ -54,40 +54,37 @@ app.post("/api/generate-diary", async (req, res) => {
       if (m.type === "image") typeLabel = "【写真添付投稿】";
       if (m.type === "audio") typeLabel = "【音声メモ投稿】";
       if (m.type === "video") typeLabel = "【動画メモ投稿】";
-      const moodText = m.mood ? ` (気分: ${m.mood})` : '';
-      return `${idx + 1}. [${timeStr}] ${typeLabel}${moodText}: ${m.content}`;
+      return `${idx + 1}. [${timeStr}] ${typeLabel}: ${m.content}`;
     }).join("\n");
 
     const stylePrompts: Record<string, string> = {
-      poetic: "叙情的で情緒豊かな詩的スタイルの日記。美しい日本語表現と情景描写を重んじる。",
-      warm: "優しく温かい語り口調。まるで親しい友人に語りかけるような、心和む日記。",
-      novelist: "まるで短編小説のような物語調。情景や心理描写をドラマチックに描く。",
-      funny: "ユーモアたっぷりで少しクスッと笑える親しみやすい明るい日記。",
-      concise: "シンプルで読みやすい、すっきりとまとまった現代的なスタイル。",
-      empathic: "自分自身の感情に寄り添い、労いと自己肯定感が高まる優しい日記。"
+      natural: "投稿者の言葉遣いや雰囲気をそのまま活かした、自然で素朴な日記文章。不自然な飾り立てや詩的表現は避け、本人の声がそのまま届く文章にする。",
+      neat: "投稿の事実関係を整理し、読みやすくすっきりと整えた日誌スタイル。",
+      casual: "親しみやすく明るい、日常のメモを素直につなげたカジュアルな文章。",
+      concise: "余計な言葉を削ぎ落とし、その日の出来事と感想をコンパクトにまとめたスタイル。"
     };
 
-    const chosenStyle = stylePrompts[diaryStyle] || stylePrompts.poetic;
+    const chosenStyle = stylePrompts[diaryStyle] || stylePrompts.natural;
 
-    const systemInstruction = `あなたはユーザーの1日の断片的な投稿（テキスト、写真のメモ、音声メモ、動画メモ）を紡ぎ合わせて、世界に一つだけの美しい「AI日記」を自動執筆するゴーストライターAIです。
+    const systemInstruction = `あなたはユーザーの日々の投稿メモ（テキスト、写真、音声メモ）をもとに、1日のまとめ日記を作成するライティングアシスタントです。
 
-文体スタイル指示:
-${chosenStyle}
+【最重要ルール】
+1. ユーザー自身が書いた言葉遣い、表現、話し言葉の雰囲気、投稿のトーンをそのまま尊重し、無理に大げさな詩や小説風に改変しないでください。
+2. 不自然なAIっぽい文体（「〜という名の宝物」「輝く日常」「優しく包み込む」といった過剰で誇張された形容詞やロボット的なまとめ）は固く禁止します。
+3. ユーザーの投稿した出来事の順序や内容に忠実に、自然で読みやすい一つの日記文章として整理してください。
+4. Markdown形式で適度に段落を分け、読みやすくレイアウトしてください。
+5. 感想やまとめは、ユーザー本人の視点（一人称）に統一し、AI側からの客観的な説教・アドバイス・褒めちぎり文（「今日もお疲れ様でした」「素晴らしい一日ですね」など）は含めないでください。
 
-執筆のガイドライン:
-1. 提供された各投稿の時系列や感情の変化、共通のテーマを見つけ出し、一つのストーリーに織り上げてください。
-2. 断片的なつぶやきからその背景にある情景や感情、匂い、空気感を豊かにイメージして描写してください。
-3. 箇条書きの丸写しではなく、章立て（Markdownの見出し）や段落を使って読み応えのある日記（全文で500〜1000文字程度）に仕上げてください。
-4. Markdown形式で視覚的に美しくレイアウトしてください（適宜絵文字や太字を使用）。
-5. ユーザー（${userDisplayName}さん）の一日を労い、肯定する温かいメッセージも含めてください。`;
+文体スタイル:
+${chosenStyle}`;
 
     const prompt = `日付: ${date}
 ユーザー名: ${userDisplayName}
 
-【本日投稿されたモーメント（投稿一覧）】:
+【本日投稿されたメモ一覧】:
 ${momentsSummary}
 
-上記の投稿をもとに、本日の日記を生成し、JSON形式で出力してください。`;
+上記の投稿をもとに、本人の言葉のよさを活かした自然な日記を作成し、JSON形式で出力してください。`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
@@ -100,35 +97,22 @@ ${momentsSummary}
           properties: {
             title: {
               type: Type.STRING,
-              description: "今日という日を象徴する印象的で魅力的な日記のタイトル",
+              description: "今日のできごとを表す自然でシンプルな日記のタイトル",
             },
             content: {
               type: Type.STRING,
-              description: "Markdown形式の本文（見出し、見やすい段落、絵文字を含む日記）",
+              description: "Markdown形式の本文（本人のトーンを活かした自然な日記文章）",
             },
             summary: {
               type: Type.STRING,
-              description: "SNSタイムライン用の1〜2文の短く美しい要約",
-            },
-            mood: {
-              type: Type.STRING,
-              description: "一日の主な気分・一文字〜数文字のキーワード（例: 「穏やかな充実感」「発見のとき」「ほっこり休息」「前進の一歩」）",
-            },
-            tags: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: "関連するタグ（3〜5個、例: ['カフェ', '夕焼け', '読書']）",
-            },
-            aiReflection: {
-              type: Type.STRING,
-              description: "AIからユーザーへの明日への一言エール・問いかけメッセージ",
+              description: "1〜2文のシンプルな要約",
             },
             imagePrompt: {
               type: Type.STRING,
-              description: "今日の日記のカバーイラストを描くための詳細な英語プロンプト（水彩画風、温かいタッチ等）",
+              description: "今日の日記のカバー写真のための英語プロンプト（温かみのあるシンプルな日常写真風）",
             },
           },
-          required: ["title", "content", "summary", "mood", "tags", "aiReflection", "imagePrompt"],
+          required: ["title", "content", "summary", "imagePrompt"],
         },
       },
     });
@@ -153,23 +137,42 @@ app.post("/api/generate-cover", async (req, res) => {
 
     const ai = getGenAI();
 
-    // Use gemini-3.1-flash-lite-image or image fallback
+    // Try image generation models with graceful fallback if quota is exceeded
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3.1-flash-lite-image",
-        contents: {
-          parts: [
-            {
-              text: `Artistic, peaceful digital watercolor illustration depicting this scene: ${prompt}. Soft aesthetic colors, cozy diary cover art style, high visual quality, no text overlay.`,
-            },
-          ],
-        },
-        config: {
-          imageConfig: {
-            aspectRatio: "16:9",
+      let response;
+      try {
+        response = await ai.models.generateContent({
+          model: "imagen-3.0-generate-002",
+          contents: {
+            parts: [
+              {
+                text: `Peaceful natural photographic style depicting this scene: ${prompt}. Warm lighting, natural colors, cozy everyday photo style, high quality, no text overlay.`,
+              },
+            ],
           },
-        },
-      });
+          config: {
+            imageConfig: {
+              aspectRatio: "16:9",
+            },
+          },
+        });
+      } catch {
+        response = await ai.models.generateContent({
+          model: "gemini-3.1-flash-lite-image",
+          contents: {
+            parts: [
+              {
+                text: `Peaceful natural photographic style depicting this scene: ${prompt}. Soft aesthetic colors, cozy diary cover art style, high visual quality, no text overlay.`,
+              },
+            ],
+          },
+          config: {
+            imageConfig: {
+              aspectRatio: "16:9",
+            },
+          },
+        });
+      }
 
       let imageUrl = null;
       if (response.candidates?.[0]?.content?.parts) {
@@ -184,11 +187,11 @@ app.post("/api/generate-cover", async (req, res) => {
       if (imageUrl) {
         return res.json({ success: true, imageUrl });
       }
-    } catch (imgError: any) {
-      console.warn("Gemini Image generation failed, falling back to curated visual:", imgError?.message);
+    } catch {
+      // Quietly use curated visual fallback when quota is reached
     }
 
-    // Fallback image using high quality curated seed image if model call is restricted or fails
+    // Fallback image using high quality curated seed image
     const encodedPrompt = encodeURIComponent(prompt.slice(0, 30));
     const fallbackUrl = `https://picsum.photos/seed/${encodedPrompt}/1200/675`;
 

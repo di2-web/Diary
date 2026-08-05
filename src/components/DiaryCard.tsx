@@ -64,7 +64,7 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
   const [isGeneratingAiComment, setIsGeneratingAiComment] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const isOwner = currentUser?.uid === diary.userId;
+  const isOwner = !currentUser?.uid || currentUser?.uid === diary.userId || diary.userId === 'guest' || currentUser?.uid === 'guest';
 
   // Real-time listen for comments on this diary
   useEffect(() => {
@@ -171,33 +171,14 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
     }
   };
 
-  const handleGenerateAiComment = async () => {
+  const handleDeleteComment = async (commentId: string) => {
     try {
-      setIsGeneratingAiComment(true);
-      const aiResponse = await apiGenerateAiComment(
-        diary.title,
-        diary.content,
-        diary.userDisplayName
-      );
-
-      await addDoc(collection(db, 'diary_comments'), {
-        diaryId: diary.id,
-        userId: 'ai_bot_kokoro',
-        userDisplayName: 'AIフレンド ココロ 🤖',
-        userPhotoURL: 'https://api.dicebear.com/7.x/bottts/svg?seed=kokoro',
-        content: aiResponse,
-        isAiComment: true,
-        createdAt: new Date().toISOString(),
-      });
-
+      await deleteDoc(doc(db, 'diary_comments', commentId));
       await updateDoc(doc(db, 'diaries', diary.id), {
-        commentsCount: increment(1),
+        commentsCount: increment(-1),
       });
     } catch (err) {
-      console.error('AI comment error:', err);
-      alert('AIコメントの生成に失敗しました。');
-    } finally {
-      setIsGeneratingAiComment(false);
+      console.error('Delete comment error:', err);
     }
   };
 
@@ -213,7 +194,7 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
   };
 
   const handleShare = () => {
-    const text = `【LifeLog AI 日記】 ${diary.title} (${diary.date})\n${diary.summary}\n#LifeLogAI #AI日記`;
+    const text = `【LifeLog 日記】 ${diary.title} (${diary.date})\n${diary.summary}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -239,10 +220,6 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
             </span>
 
             <div className="flex items-center gap-2">
-              <span className="bg-amber-500/90 backdrop-blur-md text-white font-medium text-xs px-2.5 py-1 rounded-full shadow-2xs">
-                ✨ {diary.mood || '穏やか'}
-              </span>
-
               {isOwner && (
                 <button
                   onClick={handleToggleVisibility}
@@ -291,29 +268,30 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
               <span className="font-bold text-stone-800 text-sm block -mb-0.5">
                 {diary.userDisplayName}
               </span>
-              <span className="text-[11px] text-stone-400">AIが紡いだ日記</span>
+              <span className="text-[11px] text-stone-400">{diary.date} の日記</span>
             </div>
           </div>
 
           {isOwner && onDeleteDiary && (
             <button
               onClick={() => onDeleteDiary(diary.id)}
-              className="p-2 text-stone-400 hover:text-rose-600 transition-colors"
+              className="px-2.5 py-1 text-stone-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5 text-xs border border-stone-200"
               title="日記を削除"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>削除</span>
             </button>
           )}
         </div>
 
         {/* Audio Narration Player if available */}
         {diary.audioNarrationUrl && (
-          <div className="bg-amber-50 rounded-xl p-3 border border-amber-200/80 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-              <Volume2 className="w-5 h-5 animate-pulse" />
+          <div className="bg-stone-50 rounded-xl p-3 border border-stone-200/80 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-stone-800 text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <Volume2 className="w-4 h-4" />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-xs font-bold text-amber-900 block">AI朗読音声（音声で聴く）</span>
+              <span className="text-xs font-semibold text-stone-700 block">朗読音声</span>
               <audio src={diary.audioNarrationUrl} controls className="w-full h-8 mt-1" />
             </div>
           </div>
@@ -325,37 +303,6 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
             <Markdown>{diary.content}</Markdown>
           </div>
         </div>
-
-        {/* AI Reflection Message Box */}
-        {diary.aiReflection && (
-          <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-rose-50 border border-amber-200/80 flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center shrink-0 text-sm shadow-2xs mt-0.5">
-              ✨
-            </div>
-            <div>
-              <span className="text-xs font-bold text-amber-900 block mb-0.5">
-                AIパートナーからのひとことメッセージ
-              </span>
-              <p className="text-xs text-stone-700 italic leading-relaxed">
-                "{diary.aiReflection}"
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Tags */}
-        {diary.tags && diary.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-2">
-            {diary.tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="text-[11px] font-medium bg-stone-100 text-stone-600 px-2.5 py-0.5 rounded-full border border-stone-200"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
 
         {/* Reactions & Interaction Controls */}
         <div className="pt-3 border-t border-stone-100 space-y-3">
@@ -393,7 +340,7 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
 
               <button
                 onClick={handleShare}
-                className="p-1.5 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-full transition-colors"
+                className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-full transition-colors"
                 title="文章をコピーしてシェア"
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
@@ -404,45 +351,40 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
           {/* Comment Drawer */}
           {showComments && (
             <div className="pt-3 border-t border-dashed border-stone-200 space-y-3">
-              {/* Generate AI Comment button */}
               <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-stone-700">みんなのコメント</span>
-                <button
-                  onClick={handleGenerateAiComment}
-                  disabled={isGeneratingAiComment}
-                  className="flex items-center gap-1 text-xs font-medium text-amber-800 bg-amber-100/80 hover:bg-amber-200 px-2.5 py-1 rounded-lg transition-all cursor-pointer disabled:opacity-50"
-                >
-                  <Bot className="w-3.5 h-3.5" />
-                  {isGeneratingAiComment ? 'AIコメントを作成中...' : 'AI読者の感想を聞く'}
-                </button>
+                <span className="text-xs font-bold text-stone-700">コメント ({comments.length})</span>
               </div>
 
               {/* List of comments */}
               <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                 {comments.length === 0 ? (
                   <p className="text-xs text-stone-400 text-center py-2">
-                    まだコメントはありません。一番乗りのコメントを残しましょう！
+                    まだコメントはありません。
                   </p>
                 ) : (
                   comments.map((c) => (
                     <div
                       key={c.id}
-                      className={`p-2.5 rounded-xl text-xs space-y-1 ${
-                        c.isAiComment
-                          ? 'bg-amber-50/90 border border-amber-200 text-amber-950'
-                          : 'bg-stone-50 border border-stone-200 text-stone-800'
-                      }`}
+                      className="p-2.5 rounded-xl text-xs bg-stone-50 border border-stone-200/80 text-stone-800 space-y-1 relative group"
                     >
                       <div className="flex items-center justify-between font-bold text-[11px]">
-                        <span className="flex items-center gap-1 text-stone-700">
-                          {c.isAiComment && '🤖 '}
-                          {c.userDisplayName}
-                        </span>
-                        <span className="text-[10px] text-stone-400 font-normal">
-                          {c.createdAt ? new Date(c.createdAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }) : ''}
-                        </span>
+                        <span className="text-stone-700">{c.userDisplayName}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-stone-400 font-normal">
+                            {c.createdAt ? new Date(c.createdAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }) : ''}
+                          </span>
+                          {(c.userId === currentUser?.uid || isOwner) && (
+                            <button
+                              onClick={() => handleDeleteComment(c.id)}
+                              className="text-stone-400 hover:text-rose-600 transition-colors p-0.5"
+                              title="コメントを削除"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <p className="leading-relaxed whitespace-pre-wrap">{c.content}</p>
+                      <p className="leading-relaxed whitespace-pre-wrap text-stone-700">{c.content}</p>
                     </div>
                   ))
                 )}
@@ -454,13 +396,13 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
                   type="text"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="温かいコメントを書く..."
-                  className="flex-1 rounded-xl border border-stone-300 px-3 py-2 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/40 bg-stone-50"
+                  placeholder="コメントを書く..."
+                  className="flex-1 rounded-xl border border-stone-300 px-3 py-2 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-stone-400 bg-stone-50"
                 />
                 <button
                   type="submit"
                   disabled={isSubmittingComment || !newComment.trim()}
-                  className="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3.5 py-2 rounded-xl transition-all cursor-pointer disabled:opacity-40"
+                  className="bg-stone-800 hover:bg-stone-900 text-white text-xs px-3.5 py-2 rounded-xl transition-all cursor-pointer disabled:opacity-40"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>
