@@ -42,18 +42,7 @@ import {
 import { apiGenerateAiComment } from '../lib/geminiApi';
 
 const STAMP_PRESETS = [
-  { icon: '💮', label: 'たいへんよくできました' },
-  { icon: '🌸', label: '満点スマイル' },
-  { icon: '☕️', label: 'ほっと一息' },
-  { icon: '🌟', label: 'きらめき' },
-  { icon: '👊', label: '踏ん張った' },
-  { icon: '☀️', label: '快晴' },
-  { icon: '🌧️', label: '雨のち晴れ' },
-  { icon: '🎵', label: 'お気に入りBGM' },
-  { icon: '🍰', label: 'ごほうびスイーツ' },
-  { icon: '📌', label: '重要メモ' },
-  { icon: '🎀', label: '記念日' },
-  { icon: '🐾', label: 'ほっこり足跡' },
+  '💮', '🌸', '☕️', '🌟', '👊', '☀️', '🌧️', '🎵', '🍰', '📌', '🎀', '🐾', '❤️', '🍀', '✨', '🍙', '🐶', '🐱'
 ];
 
 const PAPER_BG_CLASSES: Record<string, { label: string; class: string; badgeClass: string }> = {
@@ -79,11 +68,11 @@ interface DiaryCardProps {
   isSingleView?: boolean;
 }
 
-const REACTIONS: { type: ReactionType; icon: string; label: string; activeColor: string }[] = [
-  { type: 'heart', icon: '❤️', label: 'スキ', activeColor: 'bg-rose-100 text-rose-700 border-rose-300' },
-  { type: 'inspire', icon: '🌟', label: '素敵', activeColor: 'bg-amber-100 text-amber-800 border-amber-300' },
-  { type: 'cozy', icon: '☕', label: 'ほっこり', activeColor: 'bg-orange-100 text-orange-800 border-orange-300' },
-  { type: 'support', icon: '🫂', label: '応援', activeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+const REACTIONS: { type: ReactionType; icon: string; activeColor: string }[] = [
+  { type: 'heart', icon: '❤️', activeColor: 'bg-rose-100 text-rose-700 border-rose-300' },
+  { type: 'inspire', icon: '🌟', activeColor: 'bg-amber-100 text-amber-800 border-amber-300' },
+  { type: 'cozy', icon: '☕', activeColor: 'bg-orange-100 text-orange-800 border-orange-300' },
+  { type: 'support', icon: '🫂', activeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
 ];
 
 export const DiaryCard: React.FC<DiaryCardProps> = ({
@@ -101,9 +90,10 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
   const [copied, setCopied] = useState(false);
 
   // Decoration & Rewrite States
-  const [bgStyle, setBgStyle] = useState<string>(diary.bgStyle || 'paper-washi');
+  const [bgStyle, setBgStyle] = useState<string>('paper-white');
   const [fontStyle, setFontStyle] = useState<string>(diary.fontStyle || 'serif');
   const [stamps, setStamps] = useState<DiaryStamp[]>(diary.stamps || []);
+  const [selectedStamp, setSelectedStamp] = useState<string | null>(null);
   const [isDecoOpen, setIsDecoOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editedTitle, setEditedTitle] = useState(diary.title);
@@ -116,12 +106,36 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
 
   // Sync props if changed
   useEffect(() => {
-    setBgStyle(diary.bgStyle || 'paper-washi');
+    setBgStyle('paper-white');
     setFontStyle(diary.fontStyle || 'serif');
     setStamps(diary.stamps || []);
     setEditedTitle(diary.title);
     setEditedContent(diary.content);
   }, [diary]);
+
+  // Handle click on card to place selected stamp at exact click position
+  const handleCardClickToStamp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!selectedStamp || !cardRef.current || !isOwner || !isDecoOpen) return;
+
+    // Check if target is a button or input or existing stamp
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('input') || target.closest('textarea')) return;
+
+    const rect = cardRef.current.getBoundingClientRect();
+    const xPercent = Math.min(Math.max(Math.round(((e.clientX - rect.left) / rect.width) * 100), 5), 90);
+    const yPercent = Math.min(Math.max(Math.round(((e.clientY - rect.top) / rect.height) * 100), 5), 90);
+
+    const newStamp: DiaryStamp = {
+      id: `stamp_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      icon: selectedStamp,
+      label: selectedStamp,
+      x: xPercent,
+      y: yPercent,
+      rotation: Math.round(-15 + Math.random() * 30),
+    };
+
+    setStamps((prev) => [...prev, newStamp]);
+  };
 
   // Save decoration & edits to Firestore
   const handleSaveDecoAndContent = async () => {
@@ -303,8 +317,27 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
   return (
     <article
       ref={cardRef}
-      className={`rounded-2xl border shadow-sm overflow-hidden transition-all hover:shadow-md relative ${paperInfo.class}`}
+      onClick={handleCardClickToStamp}
+      className={`rounded-2xl border shadow-sm overflow-hidden transition-all hover:shadow-md relative bg-white border-stone-200 ${
+        selectedStamp && isDecoOpen ? 'cursor-crosshair ring-2 ring-amber-400/80' : ''
+      }`}
     >
+      {/* Stamp Placement Banner Guide */}
+      {selectedStamp && isDecoOpen && (
+        <div className="bg-amber-500 text-stone-900 font-bold text-xs px-3 py-1.5 text-center flex items-center justify-center gap-2 sticky top-0 z-30 shadow-xs">
+          <span>スタンプ「{selectedStamp}」を選択中！手帳上の好きな場所をタップして押してください</span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedStamp(null);
+            }}
+            className="bg-stone-900 text-white rounded-md px-2 py-0.5 text-[10px] hover:bg-stone-800"
+          >
+            解除
+          </button>
+        </div>
+      )}
+
       {/* Absolute Stamps Overlay */}
       {stamps.map((s) => (
         <div
@@ -385,6 +418,36 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
         </div>
       )}
 
+      {/* Title & Visibility for diaries without cover image */}
+      {!diary.coverImageUrl && (
+        <div className="px-5 pt-5 pb-1 flex items-start justify-between gap-3">
+          <h2 className={`font-bold text-xl sm:text-2xl text-stone-800 tracking-tight ${fontInfo.class}`}>
+            {editedTitle || diary.title}
+          </h2>
+          {isOwner && (
+            <button
+              onClick={handleToggleVisibility}
+              className={`flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all cursor-pointer shrink-0 ${
+                diary.isPublic
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                  : 'bg-stone-100 text-stone-600 border-stone-300 hover:bg-stone-200'
+              }`}
+              title="公開状態を切り替え（クリックで公開/非公開を変更できます）"
+            >
+              {diary.isPublic ? (
+                <>
+                  <Globe className="w-3 h-3 text-emerald-600" /> 公開中
+                </>
+              ) : (
+                <>
+                  <Lock className="w-3 h-3 text-stone-500" /> 非公開
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Main Content Area */}
       <div className="p-5 sm:p-6 space-y-4">
         {/* Author Info & Deco Controls */}
@@ -458,7 +521,7 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
             <div className="flex items-center justify-between border-b border-amber-200/80 pb-2">
               <span className="font-bold flex items-center gap-1.5 text-amber-900">
                 <Palette className="w-4 h-4 text-amber-700" />
-                手帳デコレーションパレット
+                手帳デコパレット（フォント ＆ スタンプ）
               </span>
               <button
                 onClick={handleSaveDecoAndContent}
@@ -470,29 +533,9 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
               </button>
             </div>
 
-            {/* 1. Paper Background Selector */}
+            {/* 1. Font Style Selector */}
             <div className="space-y-1.5">
-              <span className="font-semibold text-stone-700 block">① 背景紙テクスチャ:</span>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
-                {Object.entries(PAPER_BG_CLASSES).map(([key, item]) => (
-                  <button
-                    key={key}
-                    onClick={() => setBgStyle(key)}
-                    className={`p-2 rounded-xl border text-[11px] font-medium transition-all text-center cursor-pointer ${
-                      bgStyle === key
-                        ? 'border-amber-600 bg-amber-500 text-white font-bold shadow-2xs scale-102'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-amber-400'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 2. Font Style Selector */}
-            <div className="space-y-1.5">
-              <span className="font-semibold text-stone-700 block">② 書体・フォント:</span>
+              <span className="font-semibold text-stone-700 block">① 書体・フォントの選択:</span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 {Object.entries(FONT_CLASSES).map(([key, item]) => (
                   <button
@@ -510,10 +553,10 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
               </div>
             </div>
 
-            {/* 3. Stamp & Sticker Selector */}
+            {/* 2. Stamp Toolbar */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-stone-700">③ 手帳スタンプ・シールペタペタ (タップで追加):</span>
+                <span className="font-semibold text-stone-700">② スタンプツールバー (選択して手帳上をクリックでペタッ):</span>
                 {stamps.length > 0 && (
                   <button
                     onClick={() => setStamps([])}
@@ -524,17 +567,29 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
                 )}
               </div>
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                {STAMP_PRESETS.map((st) => (
-                  <button
-                    key={st.label}
-                    onClick={() => handleAddStamp(st.icon, st.label)}
-                    className="flex items-center gap-1 bg-white hover:bg-amber-200/60 border border-amber-300/80 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer text-xs shrink-0 active:scale-95 shadow-2xs"
-                    title={st.label}
-                  >
-                    <span className="text-base">{st.icon}</span>
-                    <span className="text-[10px] font-medium text-stone-700">{st.label}</span>
-                  </button>
-                ))}
+                {STAMP_PRESETS.map((st) => {
+                  const isSelected = selectedStamp === st;
+                  return (
+                    <button
+                      key={st}
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedStamp(null);
+                        } else {
+                          setSelectedStamp(st);
+                        }
+                      }}
+                      className={`w-9 h-9 flex items-center justify-center border rounded-xl transition-all cursor-pointer text-lg shrink-0 active:scale-95 shadow-2xs ${
+                        isSelected
+                          ? 'bg-amber-500 text-stone-900 border-amber-600 font-bold scale-110 ring-2 ring-amber-400'
+                          : 'bg-white hover:bg-amber-200/60 border-amber-300/80 text-stone-700'
+                      }`}
+                      title={`スタンプ ${st}`}
+                    >
+                      <span>{st}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -603,22 +658,21 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
         {/* Reactions & Interaction Controls */}
         <div className="pt-3 border-t border-stone-100 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            {/* Reaction buttons */}
-            <div className="flex items-center gap-1">
+            {/* Reaction buttons (Emoji only) */}
+            <div className="flex items-center gap-1.5">
               {REACTIONS.map((r) => {
                 const isActive = userReaction === r.type;
                 return (
                   <button
                     key={r.type}
                     onClick={() => handleToggleReaction(r.type)}
-                    className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full border transition-all cursor-pointer ${
+                    className={`flex items-center justify-center text-sm w-8 h-8 rounded-full border transition-all cursor-pointer ${
                       isActive
-                        ? `${r.activeColor} font-bold scale-105 shadow-2xs`
-                        : 'bg-stone-50 border-stone-200/80 text-stone-600 hover:bg-stone-100'
+                        ? `${r.activeColor} font-bold scale-110 shadow-2xs`
+                        : 'bg-stone-50 border-stone-200/80 hover:bg-amber-100/50 hover:scale-105'
                     }`}
                   >
                     <span>{r.icon}</span>
-                    <span>{r.label}</span>
                   </button>
                 );
               })}

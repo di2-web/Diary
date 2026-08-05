@@ -297,8 +297,8 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
         )}
 
         {/* Input Tools & Submit Button */}
-        <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-stone-100">
+          <div className="flex items-center gap-1 shrink-0">
             {/* Image File Upload Hidden Input */}
             <input
               type="file"
@@ -321,7 +321,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-upload-photo"
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
               title="写真をアップロード"
             >
               <ImageIcon className="w-5 h-5" />
@@ -331,7 +331,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-upload-audio"
               type="button"
               onClick={() => audioFileInputRef.current?.click()}
-              className="p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
               title="音ファイルをアップロード"
             >
               <Music className="w-5 h-5" />
@@ -341,7 +341,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-sample-photos"
               type="button"
               onClick={() => setShowPhotoPicker(!showPhotoPicker)}
-              className="p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
               title="サンプル写真を選ぶ"
             >
               <Camera className="w-5 h-5" />
@@ -351,7 +351,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-mic-record"
               type="button"
               onClick={isRecording ? stopRecording : startRecording}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                 isRecording
                   ? 'bg-rose-100 text-rose-600 animate-pulse'
                   : 'text-stone-500 hover:text-rose-600 hover:bg-rose-50'
@@ -362,18 +362,18 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
             <button
               type="button"
               onClick={() => setIsPinned(!isPinned)}
-              className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-xl border transition-all cursor-pointer ${
+              className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-xl border transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 isPinned
                   ? 'bg-amber-500 text-white border-amber-600 font-bold shadow-2xs'
                   : 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200'
               }`}
               title="保護（ピン留め）すると自動消去から除外されます"
             >
-              <Pin className="w-3.5 h-3.5" />
+              <Pin className="w-3.5 h-3.5 shrink-0" />
               <span>{isPinned ? '保護オン' : '保護オフ'}</span>
             </button>
 
@@ -381,9 +381,9 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-submit-moment"
               type="submit"
               disabled={isSubmitting || (!content.trim() && !mediaUrl)}
-              className="flex items-center gap-2 bg-stone-800 hover:bg-stone-900 text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
+              className="flex items-center gap-1.5 bg-stone-800 hover:bg-stone-900 text-white text-xs sm:text-sm font-medium px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-40 cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-4 h-4 shrink-0" />
               投稿する
             </button>
           </div>

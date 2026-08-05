@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, BookOpen, Calendar, Globe, User, LogIn, Map, Activity } from 'lucide-react';
+import { Sparkles, BookOpen, Calendar, Globe, User, LogIn, Activity } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface NavbarProps {
@@ -8,7 +8,6 @@ interface NavbarProps {
   user: UserProfile | null;
   onOpenAuth: () => void;
   onOpenProfile: () => void;
-  onOpenRoadmap: () => void;
   onGenerateDiaryClick: () => void;
   hasMomentsToday: boolean;
 }
@@ -19,7 +18,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   user,
   onOpenAuth,
   onOpenProfile,
-  onOpenRoadmap,
   onGenerateDiaryClick,
   hasMomentsToday,
 }) => {
@@ -30,29 +28,24 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand Logo */}
         <div 
           onClick={() => setActiveTab('sns')}
-          className="flex items-center gap-2.5 cursor-pointer group select-none"
+          className="flex items-center gap-2 cursor-pointer group select-none shrink-0"
         >
-          <div className="w-9 h-9 rounded-xl bg-stone-800 flex items-center justify-center text-amber-100 shadow-2xs group-hover:bg-stone-900 transition-colors">
-            <BookOpen className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-xl bg-stone-900 flex items-center justify-center text-amber-100 shadow-2xs group-hover:bg-stone-800 transition-colors">
+            <BookOpen className="w-4 h-4" />
           </div>
-          <div>
-            <span className="font-serif font-bold text-lg text-stone-900 tracking-tight block">
-              WaveLog
-            </span>
-            <span className="text-[10px] text-stone-500 font-medium tracking-wide -mt-1 block">
-              手帳AI日記 ＆ スキマログ
-            </span>
-          </div>
+          <span className="font-serif font-bold text-lg text-stone-900 tracking-tight whitespace-nowrap">
+            WaveLog
+          </span>
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="hidden md:flex items-center gap-1 bg-stone-200/60 p-1 rounded-full border border-stone-300/40">
+        <nav className="hidden md:flex items-center gap-1 bg-stone-200/50 p-1 rounded-full border border-stone-300/40 shrink-0">
           <button
             id="nav-tab-sns"
             onClick={() => setActiveTab('sns')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'sns'
-                ? 'bg-white text-stone-900 shadow-2xs'
+                ? 'bg-white text-stone-900 shadow-2xs font-semibold'
                 : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
             }`}
           >
@@ -63,38 +56,38 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-tab-moments"
             onClick={() => setActiveTab('moments')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all relative ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all relative whitespace-nowrap cursor-pointer ${
               activeTab === 'moments'
-                ? 'bg-white text-stone-900 shadow-2xs'
+                ? 'bg-white text-stone-900 shadow-2xs font-semibold'
                 : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5 text-stone-600" />
             きょうの記録
             {hasMomentsToday && (
-              <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse absolute top-2 right-2" />
+              <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse absolute top-1.5 right-1.5" />
             )}
           </button>
 
           <button
             id="nav-tab-wave"
             onClick={() => setActiveTab('wave')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'wave'
-                ? 'bg-amber-500 text-white shadow-2xs'
+                ? 'bg-amber-500 text-white shadow-2xs font-semibold'
                 : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
-            気分の波 (Wave)
+            気分の波
           </button>
 
           <button
             id="nav-tab-calendar"
             onClick={() => setActiveTab('calendar')}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'calendar'
-                ? 'bg-white text-stone-900 shadow-2xs'
+                ? 'bg-white text-stone-900 shadow-2xs font-semibold'
                 : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
             }`}
           >
@@ -104,21 +97,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Action Controls & Profile */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            id="btn-roadmap-nav"
-            onClick={onOpenRoadmap}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-stone-700 bg-amber-100/70 hover:bg-amber-200/80 border border-amber-300/80 transition-all cursor-pointer"
-            title="開発ロードマップを確認"
-          >
-            <Map className="w-3.5 h-3.5 text-amber-700" />
-            <span className="hidden sm:inline">ロードマップ</span>
-          </button>
-
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             id="btn-generate-diary-nav"
             onClick={onGenerateDiaryClick}
-            className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-200" />
             <span>日記を作成</span>
@@ -149,47 +132,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
         </div>
-      </div>
-
-      {/* Mobile Tab Bar */}
-      <div className="md:hidden flex border-t border-amber-200/50 bg-amber-50/95">
-        <button
-          onClick={() => setActiveTab('sns')}
-          className={`flex-1 py-2.5 flex items-center justify-center gap-1.5 text-xs font-medium border-b-2 ${
-            activeTab === 'sns' ? 'border-amber-600 text-amber-700 bg-amber-100/40' : 'border-transparent text-stone-600'
-          }`}
-        >
-          <Globe className="w-4 h-4" />
-          みんなのDiary
-        </button>
-        <button
-          onClick={() => setActiveTab('moments')}
-          className={`flex-1 py-2.5 flex items-center justify-center gap-1.5 text-xs font-medium border-b-2 relative ${
-            activeTab === 'moments' ? 'border-rose-500 text-rose-700 bg-rose-50/40' : 'border-transparent text-stone-600'
-          }`}
-        >
-          <BookOpen className="w-4 h-4" />
-          きょうの記録
-          {hasMomentsToday && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 absolute top-2 right-4" />}
-        </button>
-        <button
-          onClick={() => setActiveTab('wave')}
-          className={`flex-1 py-2.5 flex items-center justify-center gap-1.5 text-xs font-medium border-b-2 ${
-            activeTab === 'wave' ? 'border-amber-500 text-amber-700 bg-amber-100/40' : 'border-transparent text-stone-600'
-          }`}
-        >
-          <Activity className="w-4 h-4" />
-          気分の波
-        </button>
-        <button
-          onClick={() => setActiveTab('calendar')}
-          className={`flex-1 py-2.5 flex items-center justify-center gap-1.5 text-xs font-medium border-b-2 ${
-            activeTab === 'calendar' ? 'border-emerald-600 text-emerald-700 bg-emerald-50/40' : 'border-transparent text-stone-600'
-          }`}
-        >
-          <Calendar className="w-4 h-4" />
-          カレンダー
-        </button>
       </div>
     </header>
   );
