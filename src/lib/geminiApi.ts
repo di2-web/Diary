@@ -1,10 +1,11 @@
-import { Moment, DiaryStyle } from '../types';
+import { Moment, DiaryStyle, WavePoint } from '../types';
 
 export interface GenerateDiaryRequest {
   moments: Moment[];
   date: string;
   diaryStyle?: DiaryStyle;
   userDisplayName?: string;
+  wavePoints?: WavePoint[];
 }
 
 export interface GeneratedDiaryResponse {

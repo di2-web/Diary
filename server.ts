@@ -39,13 +39,25 @@ app.get("/api/health", (req, res) => {
 // 2. Generate Daily AI Diary from Moments
 app.post("/api/generate-diary", async (req, res) => {
   try {
-    const { moments, date, diaryStyle = "poetic", userDisplayName = "ユーザー" } = req.body;
+    const { moments, date, diaryStyle = "natural", userDisplayName = "ユーザー", wavePoints } = req.body;
 
     if (!moments || !Array.isArray(moments) || moments.length === 0) {
       return res.status(400).json({ error: "投稿（モーメント）がひとつも指定されていません。" });
     }
 
     const ai = getGenAI();
+
+    // Analyze wave high/low peaks if wavePoints provided
+    let waveSummaryPrompt = "";
+    if (Array.isArray(wavePoints) && wavePoints.length > 0) {
+      const highPeaks = wavePoints.filter((p: any) => p.score >= 40).map((p: any) => `${p.hour}時頃(高テンション)`).join(", ");
+      const lowPeaks = wavePoints.filter((p: any) => p.score <= -40).map((p: any) => `${p.hour}時頃(テンション低下・落ち着き)`).join(", ");
+      
+      waveSummaryPrompt = `\n【ユーザーが描いた気分の波（24時間感情データ）】:
+- 感情が高まった時間帯（メインエピソード重み大）: ${highPeaks || "特になし（平穏）"}
+- 感情が落ち着いていた/沈んでいた時間帯: ${lowPeaks || "特になし（平穏）"}
+- 指示: 感情の高ぶり（振り幅の大きい時間帯）に対応する投稿のできごとを日記の中心（メインエピソード）として生き生きと描写し、平坦な時間帯は背景として自然に繋いでください。`;
+    }
 
     // Prepare moments description
     const momentsSummary = moments.map((m: any, idx: number) => {
@@ -66,14 +78,13 @@ app.post("/api/generate-diary", async (req, res) => {
 
     const chosenStyle = stylePrompts[diaryStyle] || stylePrompts.natural;
 
-    const systemInstruction = `あなたはユーザーの日々の投稿メモ（テキスト、写真、音声メモ）をもとに、1日のまとめ日記を作成するライティングアシスタントです。
+    const systemInstruction = `あなたはユーザーの日々の投稿メモ（テキスト、写真、音声メモ）と気分の波データをもとに、1日のまとめ手帳日記を作成するAI編集者です。
 
-【最重要ルール】
-1. ユーザー自身が書いた言葉遣い、表現、話し言葉の雰囲気、投稿のトーンをそのまま尊重し、無理に大げさな詩や小説風に改変しないでください。
-2. 不自然なAIっぽい文体（「〜という名の宝物」「輝く日常」「優しく包み込む」といった過剰で誇張された形容詞やロボット的なまとめ）は固く禁止します。
-3. ユーザーの投稿した出来事の順序や内容に忠実に、自然で読みやすい一つの日記文章として整理してください。
-4. Markdown形式で適度に段落を分け、読みやすくレイアウトしてください。
-5. 感想やまとめは、ユーザー本人の視点（一人称）に統一し、AI側からの客観的な説教・アドバイス・褒めちぎり文（「今日もお疲れ様でした」「素晴らしい一日ですね」など）は含めないでください。
+【最重要4大編集ルール】
+1. オウム返しの禁止: 単なる単語や箇条書きの丸写しではなく、時間の経過や文脈が自然に伝わる読みやすい「日記文章」へ昇華させてください。
+2. 生の言葉の尊重: ユーザー独自の言い回し、スラング、語尾、絵文字は変えずにそのまま生かしてください。
+3. 捏造・過剰演出の禁止: 入力されていない事実の創作や、大げさでロボット的なポエム演出は一切行わないでください。
+4. 時間表記の柔軟性: 基本は「昼過ぎ」「夕方」など日常的な時間帯表現を使いますが、文脈上自然で必要な場合は具体表記も可とします。
 
 文体スタイル:
 ${chosenStyle}`;
@@ -82,9 +93,9 @@ ${chosenStyle}`;
 ユーザー名: ${userDisplayName}
 
 【本日投稿されたメモ一覧】:
-${momentsSummary}
+${momentsSummary}${waveSummaryPrompt}
 
-上記の投稿をもとに、本人の言葉のよさを活かした自然な日記を作成し、JSON形式で出力してください。`;
+上記の投稿と気分の波をもとに、本人の言葉のよさを活かした自然な日記を作成し、JSON形式で出力してください。`;
 
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",

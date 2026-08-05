@@ -11,6 +11,17 @@ export interface UserProfile {
 
 export type MomentType = 'text' | 'image' | 'audio' | 'video';
 
+export interface WavePoint {
+  hour: number; // 0 to 24 (float supported)
+  score: number; // -100 (低) to +100 (高)
+}
+
+export interface MoodWave {
+  date: string; // YYYY-MM-DD
+  points: WavePoint[];
+  updatedAt?: any;
+}
+
 export interface Moment {
   id: string;
   userId: string;
@@ -20,7 +31,17 @@ export interface Moment {
   type: MomentType;
   content: string; // Text or caption/transcription
   mediaUrl?: string; // base64 or photo URL
+  isPinned?: boolean; // 保護（ピン留め）スイッチ - 自動消去から保護
   createdAt: any;
+}
+
+export interface DiaryStamp {
+  id: string;
+  icon: string;
+  label: string;
+  x: number; // percentage (0 to 100)
+  y: number; // percentage (0 to 100)
+  rotation?: number; // degrees
 }
 
 export interface Diary {
@@ -39,6 +60,10 @@ export interface Diary {
   likesCount: number;
   commentsCount: number;
   momentIds?: string[];
+  // Decoration properties
+  bgStyle?: 'paper-craft' | 'paper-washi' | 'paper-grid' | 'paper-dots' | 'paper-cafe' | 'paper-white';
+  fontStyle?: 'serif' | 'handwriting' | 'sans' | 'mono';
+  stamps?: DiaryStamp[];
   createdAt: any;
   updatedAt?: any;
 }

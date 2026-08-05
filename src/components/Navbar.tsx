@@ -1,10 +1,10 @@
 import React from 'react';
-import { Sparkles, BookOpen, Calendar, Globe, User, LogIn, Map } from 'lucide-react';
+import { Sparkles, BookOpen, Calendar, Globe, User, LogIn, Map, Activity } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface NavbarProps {
-  activeTab: 'sns' | 'moments' | 'calendar';
-  setActiveTab: (tab: 'sns' | 'moments' | 'calendar') => void;
+  activeTab: 'sns' | 'moments' | 'wave' | 'calendar';
+  setActiveTab: (tab: 'sns' | 'moments' | 'wave' | 'calendar') => void;
   user: UserProfile | null;
   onOpenAuth: () => void;
   onOpenProfile: () => void;
@@ -74,6 +74,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             {hasMomentsToday && (
               <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse absolute top-2 right-2" />
             )}
+          </button>
+
+          <button
+            id="nav-tab-wave"
+            onClick={() => setActiveTab('wave')}
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+              activeTab === 'wave'
+                ? 'bg-amber-500 text-white shadow-2xs'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5" />
+            気分の波 (Wave)
           </button>
 
           <button
@@ -158,6 +171,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           <BookOpen className="w-4 h-4" />
           きょうの記録
           {hasMomentsToday && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 absolute top-2 right-4" />}
+        </button>
+        <button
+          onClick={() => setActiveTab('wave')}
+          className={`flex-1 py-2.5 flex items-center justify-center gap-1.5 text-xs font-medium border-b-2 ${
+            activeTab === 'wave' ? 'border-amber-500 text-amber-700 bg-amber-100/40' : 'border-transparent text-stone-600'
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          気分の波
         </button>
         <button
           onClick={() => setActiveTab('calendar')}

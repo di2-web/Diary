@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Diary, Moment, UserProfile } from '../types';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Sparkles, BookOpen, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Sparkles, BookOpen, Clock, Search, ShieldCheck, Tag, FileText } from 'lucide-react';
 import { collection, query, where, onSnapshot, db, deleteDoc, doc } from '../firebase';
 import { DiaryCard } from './DiaryCard';
 
@@ -21,6 +21,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     new Date().toISOString().split('T')[0]
   );
   const [selectedDiary, setSelectedDiary] = useState<Diary | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleDeleteDiary = async (id: string) => {
     try {
@@ -58,6 +59,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
     return () => unsubscribe();
   }, [currentUser?.uid, selectedDate]);
+
+  // Full-text Search Filtered Diaries
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase().trim();
+    return Object.values(userDiaries).filter((d) => {
+      const titleMatch = d.title?.toLowerCase().includes(q);
+      const contentMatch = d.content?.toLowerCase().includes(q);
+      const dateMatch = d.date?.includes(q);
+      return titleMatch || contentMatch || dateMatch;
+    });
+  }, [searchQuery, userDiaries]);
 
   // Calendar Days calculation
   const year = currentMonth.getFullYear();
@@ -112,6 +125,73 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Search & Archive Filter Header */}
+      <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="relative w-full sm:w-80">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="過去の日記をキーワード・本文検索..."
+              className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 placeholder-stone-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/50"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-2.5 text-xs text-stone-400 hover:text-stone-700"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-medium">Firestoreセキュリティルール＆個人データ暗号化保護済み</span>
+          </div>
+        </div>
+
+        {/* Search Results Drawer */}
+        {searchQuery.trim() && (
+          <div className="bg-amber-50/80 rounded-xl p-3 border border-amber-200 space-y-2 animate-fade-in">
+            <div className="flex items-center justify-between text-xs text-amber-900 font-bold border-b border-amber-200/80 pb-1.5">
+              <span>検索結果: {searchResults.length}件ヒット</span>
+              <span className="text-[10px] text-amber-700">（タップしてその日の日記を表示）</span>
+            </div>
+
+            {searchResults.length === 0 ? (
+              <p className="text-xs text-stone-500 py-2 text-center">
+                「{searchQuery}」に一致する日記は見つかりませんでした。
+              </p>
+            ) : (
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                {searchResults.map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => {
+                      setSelectedDate(d.date);
+                      setSelectedDiary(d);
+                      setSearchQuery('');
+                    }}
+                    className="w-full text-left p-2 rounded-lg bg-white hover:bg-amber-100/70 border border-amber-200/60 transition-all flex items-center justify-between text-xs cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="font-bold text-amber-900 bg-amber-200/80 px-1.5 py-0.5 rounded-sm text-[10px] shrink-0">
+                        {d.date}
+                      </span>
+                      <span className="font-semibold text-stone-800 truncate">{d.title}</span>
+                    </div>
+                    <span className="text-[10px] text-stone-500 shrink-0">表示 →</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Calendar Header Card */}
       <div className="bg-white rounded-2xl p-6 border border-stone-200/90 shadow-sm">
         <div className="flex items-center justify-between mb-6">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, Check, Loader2, Volume2, Globe, Lock, X, RefreshCw, Wand2 } from 'lucide-react';
-import { Moment, DiaryStyle, UserProfile } from '../types';
+import { Moment, DiaryStyle, UserProfile, WavePoint } from '../types';
 import { apiGenerateDiary, apiGenerateCover, apiGenerateTTS } from '../lib/geminiApi';
 import { addDoc, collection, db } from '../firebase';
 
@@ -11,6 +11,7 @@ interface DiaryGeneratorModalProps {
   selectedDate: string;
   user: UserProfile | null;
   onDiaryCreated: () => void;
+  wavePoints?: WavePoint[];
 }
 
 export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
@@ -20,6 +21,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
   selectedDate,
   user,
   onDiaryCreated,
+  wavePoints,
 }) => {
   const [style, setStyle] = useState<DiaryStyle>(user?.diaryStyle || 'natural');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -38,13 +40,14 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
     try {
       setIsGenerating(true);
 
-      // Step 1: Writing Diary with Gemini 3.6 Flash
-      setCurrentStep('投稿メッセージを整理し、日記文章を作成中...');
+      // Step 1: Writing Diary with Gemini
+      setCurrentStep('投稿メッセージと気分の波を整理し、日記文章を作成中...');
       const diaryResult = await apiGenerateDiary({
         moments,
         date: selectedDate,
         diaryStyle: style,
         userDisplayName: user?.displayName || 'ユーザー',
+        wavePoints,
       });
 
       // Step 2: Generating Cover Image
@@ -130,8 +133,13 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
             <h3 className="font-serif font-bold text-lg text-stone-900">
               {selectedDate} の日記を作成
             </h3>
-            <p className="text-stone-500 text-xs">
-              本日投稿された <span className="font-bold text-stone-800">{moments.length}件</span> のつぶやきから整理します
+            <p className="text-stone-500 text-xs flex items-center gap-1.5 flex-wrap">
+              <span>本日投稿された <span className="font-bold text-stone-800">{moments.length}件</span> のつぶやきから整理します</span>
+              {wavePoints && wavePoints.length > 0 && (
+                <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300">
+                  ⚡ 気分の波（波形参照）連携あり
+                </span>
+              )}
             </p>
           </div>
         </div>

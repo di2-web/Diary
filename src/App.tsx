@@ -9,7 +9,8 @@ import { SnsTimeline } from './components/SnsTimeline';
 import { CalendarView } from './components/CalendarView';
 import { UserProfileModal } from './components/UserProfileModal';
 import { RoadmapModal } from './components/RoadmapModal';
-import { Moment, Diary, UserProfile } from './types';
+import { WaveCanvas } from './components/WaveCanvas';
+import { Moment, Diary, UserProfile, WavePoint } from './types';
 import {
   auth,
   onAuthStateChanged,
@@ -27,7 +28,7 @@ import {
 import { Sparkles, Calendar as CalendarIcon, Wand2, Plus, BookOpen } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'sns' | 'moments' | 'calendar'>('sns');
+  const [activeTab, setActiveTab] = useState<'sns' | 'moments' | 'wave' | 'calendar'>('sns');
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -45,6 +46,7 @@ export default function App() {
   // Data for selectedDate
   const [todayMoments, setTodayMoments] = useState<Moment[]>([]);
   const [todayDiary, setTodayDiary] = useState<Diary | null>(null);
+  const [todayWavePoints, setTodayWavePoints] = useState<WavePoint[]>([]);
 
   // Listen to Auth
   useEffect(() => {
@@ -229,15 +231,24 @@ export default function App() {
                 />
               </div>
 
-              {todayMoments.length === 0 && (
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={handleLoadSampleMoments}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-full transition-all cursor-pointer shadow-2xs"
+                  onClick={() => setActiveTab('wave')}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-100/80 hover:bg-amber-200 px-3 py-1.5 rounded-xl transition-all cursor-pointer border border-amber-300/70"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600 animate-spin" />
-                  サンプル投稿を追加してお試し
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  <span>気分の波を描く (Wave)</span>
                 </button>
-              )}
+
+                {todayMoments.length === 0 && (
+                  <button
+                    onClick={handleLoadSampleMoments}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+                  >
+                    サンプル追加
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* If Diary is already generated for selectedDate */}
@@ -297,7 +308,46 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3: Calendar Archive */}
+        {/* Tab 3: Wave Canvas */}
+        {activeTab === 'wave' && (
+          <div className="space-y-6 max-w-4xl mx-auto">
+            {/* Date Selector Header */}
+            <div className="bg-white rounded-2xl p-4 border border-amber-200 shadow-xs flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CalendarIcon className="w-5 h-5 text-amber-600" />
+                <span className="font-serif font-bold text-stone-800 text-base">
+                  対象日付:
+                </span>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="rounded-xl border border-stone-300 px-3 py-1 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500 bg-stone-50 font-medium"
+                />
+              </div>
+
+              <span className="text-xs text-stone-500">
+                本日の投稿数: <strong className="text-stone-800">{todayMoments.length}件</strong>
+              </span>
+            </div>
+
+            <WaveCanvas
+              date={selectedDate}
+              moments={todayMoments}
+              savedPoints={todayWavePoints}
+              onGenerateWithWave={(pts) => {
+                setTodayWavePoints(pts);
+                if (!currentUser) {
+                  setIsAuthModalOpen(true);
+                  return;
+                }
+                setIsGeneratorModalOpen(true);
+              }}
+            />
+          </div>
+        )}
+
+        {/* Tab 4: Calendar Archive */}
         {activeTab === 'calendar' && (
           <CalendarView
             currentUser={currentUser}
@@ -333,6 +383,7 @@ export default function App() {
         moments={todayMoments}
         selectedDate={selectedDate}
         user={currentUser}
+        wavePoints={todayWavePoints}
         onDiaryCreated={() => {
           setActiveTab('moments');
         }}

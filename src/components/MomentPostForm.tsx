@@ -12,6 +12,7 @@ import {
   Sparkles,
   Camera,
   Music,
+  Pin,
 } from 'lucide-react';
 import { MomentType, UserProfile } from '../types';
 import { addDoc, collection, db } from '../firebase';
@@ -42,6 +43,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
 
   // Audio Recorder State
   const [isRecording, setIsRecording] = useState(false);
@@ -150,6 +152,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
         type: momentType,
         content: content.trim() || (momentType === 'image' ? '📷 写真を投稿しました' : 'メモ投稿'),
         mediaUrl: mediaUrl || '',
+        isPinned: isPinned,
         createdAt: new Date().toISOString(),
       };
 
@@ -359,15 +362,31 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
             </button>
           </div>
 
-          <button
-            id="btn-submit-moment"
-            type="submit"
-            disabled={isSubmitting || (!content.trim() && !mediaUrl)}
-            className="flex items-center gap-2 bg-stone-800 hover:bg-stone-900 text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
-          >
-            <Send className="w-4 h-4" />
-            投稿する
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsPinned(!isPinned)}
+              className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-xl border transition-all cursor-pointer ${
+                isPinned
+                  ? 'bg-amber-500 text-white border-amber-600 font-bold shadow-2xs'
+                  : 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200'
+              }`}
+              title="保護（ピン留め）すると自動消去から除外されます"
+            >
+              <Pin className="w-3.5 h-3.5" />
+              <span>{isPinned ? '保護オン' : '保護オフ'}</span>
+            </button>
+
+            <button
+              id="btn-submit-moment"
+              type="submit"
+              disabled={isSubmitting || (!content.trim() && !mediaUrl)}
+              className="flex items-center gap-2 bg-stone-800 hover:bg-stone-900 text-white text-xs sm:text-sm font-medium px-4 py-2 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
+            >
+              <Send className="w-4 h-4" />
+              投稿する
+            </button>
+          </div>
         </div>
       </form>
     </div>
