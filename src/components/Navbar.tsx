@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, BookOpen, Calendar, Globe, User, LogIn, PlusCircle } from 'lucide-react';
+import { Sparkles, BookOpen, Calendar, Globe, User, LogIn, Map } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface NavbarProps {
@@ -8,6 +8,7 @@ interface NavbarProps {
   user: UserProfile | null;
   onOpenAuth: () => void;
   onOpenProfile: () => void;
+  onOpenRoadmap: () => void;
   onGenerateDiaryClick: () => void;
   hasMomentsToday: boolean;
 }
@@ -18,6 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   user,
   onOpenAuth,
   onOpenProfile,
+  onOpenRoadmap,
   onGenerateDiaryClick,
   hasMomentsToday,
 }) => {
@@ -35,10 +37,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <span className="font-serif font-bold text-lg text-stone-900 tracking-tight block">
-              LifeLog
+              WaveLog
             </span>
             <span className="text-[10px] text-stone-500 font-medium tracking-wide -mt-1 block">
-              日々の記録と手帖
+              手帳AI日記 ＆ スキマログ
             </span>
           </div>
         </div>
@@ -89,7 +91,17 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Action Controls & Profile */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            id="btn-roadmap-nav"
+            onClick={onOpenRoadmap}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-stone-700 bg-amber-100/70 hover:bg-amber-200/80 border border-amber-300/80 transition-all cursor-pointer"
+            title="開発ロードマップを確認"
+          >
+            <Map className="w-3.5 h-3.5 text-amber-700" />
+            <span className="hidden sm:inline">ロードマップ</span>
+          </button>
+
           <button
             id="btn-generate-diary-nav"
             onClick={onGenerateDiaryClick}

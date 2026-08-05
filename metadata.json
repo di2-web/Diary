@@ -1,6 +1,6 @@
 {
-  "name": "LifeLog AI - AI Diary SNS",
-  "description": "日々の文字、画像、音声、動画のつぶやきから、AIが美しい一日の日記を自動生成して共有できるAI日記SNS",
+  "name": "WaveLog",
+  "description": "マルチメディア投稿と「気分の波」からAIが手帳日記を自動作成し、親しい人と共有し合うAI日記SNS",
   "requestFramePermissions": ["camera", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

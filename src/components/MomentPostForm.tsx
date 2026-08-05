@@ -51,6 +51,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
   const timerRef = useRef<any>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioFileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle local image file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +61,20 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
       reader.onloadend = () => {
         setMediaUrl(reader.result as string);
         setMomentType('image');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle local audio file upload
+  const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMediaUrl(reader.result as string);
+        setMomentType('audio');
+        if (!content) setContent(`🎵 音声ファイル: ${file.name}`);
       };
       reader.readAsDataURL(file);
     }
@@ -281,12 +296,21 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
         {/* Input Tools & Submit Button */}
         <div className="flex items-center justify-between pt-2 border-t border-stone-100">
           <div className="flex items-center gap-1.5">
-            {/* File Upload Hidden Input */}
+            {/* Image File Upload Hidden Input */}
             <input
               type="file"
               ref={fileInputRef}
               accept="image/*"
               onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {/* Audio File Upload Hidden Input */}
+            <input
+              type="file"
+              ref={audioFileInputRef}
+              accept="audio/*"
+              onChange={handleAudioFileChange}
               className="hidden"
             />
 
@@ -298,6 +322,16 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               title="写真をアップロード"
             >
               <ImageIcon className="w-5 h-5" />
+            </button>
+
+            <button
+              id="btn-upload-audio"
+              type="button"
+              onClick={() => audioFileInputRef.current?.click()}
+              className="p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+              title="音ファイルをアップロード"
+            >
+              <Music className="w-5 h-5" />
             </button>
 
             <button
@@ -319,7 +353,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
                   ? 'bg-rose-100 text-rose-600 animate-pulse'
                   : 'text-stone-500 hover:text-rose-600 hover:bg-rose-50'
               }`}
-              title="音声メモ録音"
+              title="マイクでボイスメモ録音"
             >
               <Mic className="w-5 h-5" />
             </button>

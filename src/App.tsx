@@ -8,6 +8,7 @@ import { DiaryCard } from './components/DiaryCard';
 import { SnsTimeline } from './components/SnsTimeline';
 import { CalendarView } from './components/CalendarView';
 import { UserProfileModal } from './components/UserProfileModal';
+import { RoadmapModal } from './components/RoadmapModal';
 import { Moment, Diary, UserProfile } from './types';
 import {
   auth,
@@ -34,6 +35,7 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
+  const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState(false);
 
   // Selected date (defaults to Today YYYY-MM-DD)
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -183,6 +185,7 @@ export default function App() {
         user={currentUser}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onOpenProfile={() => setIsProfileModalOpen(true)}
+        onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
         onGenerateDiaryClick={() => {
           if (!currentUser) {
             setIsAuthModalOpen(true);
@@ -333,6 +336,11 @@ export default function App() {
         onDiaryCreated={() => {
           setActiveTab('moments');
         }}
+      />
+      {/* Roadmap Modal */}
+      <RoadmapModal
+        isOpen={isRoadmapModalOpen}
+        onClose={() => setIsRoadmapModalOpen(false)}
       />
     </div>
   );
