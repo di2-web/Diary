@@ -291,9 +291,6 @@ export const MyPage: React.FC<MyPageProps> = ({
           </div>
         </div>
 
-        {/* Friend Manager & Category Association Section */}
-        <FriendManager currentUser={user} />
-
         {/* Action buttons */}
 
         <div className="flex items-center justify-between pt-2">
@@ -322,6 +319,9 @@ export const MyPage: React.FC<MyPageProps> = ({
           </div>
         </div>
       </form>
+
+      {/* Friend Manager & Category Association Section */}
+      <FriendManager currentUser={user} />
     </div>
   );
 };
