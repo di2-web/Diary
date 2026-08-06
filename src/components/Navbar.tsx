@@ -101,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="btn-new-post-nav"
             onClick={onNewPostClick}
-            className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+            className="hidden md:flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
             title="きょうの出来事・気持ちをつぶやく"
           >
             <PenLine className="w-4 h-4 text-amber-200" />
