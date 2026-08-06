@@ -212,8 +212,8 @@ export const MyPage: React.FC<MyPageProps> = ({
                 <div className="flex items-center gap-2">
                   <span className="text-sm">👥</span>
                   <div>
-                    <span className="text-xs font-bold text-amber-900 block">共有する人 (Default)</span>
-                    <span className="text-[10px] text-amber-700">デフォルトの親しいメンバー・フォロワー</span>
+                    <span className="text-xs font-bold text-amber-900 block">Default</span>
+                    <span className="text-[10px] text-amber-700">デフォルトの共有枠（Default登録の友達に届きます）</span>
                   </div>
                 </div>
                 <span className="text-[10px] bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded-md">基本</span>
@@ -223,11 +223,11 @@ export const MyPage: React.FC<MyPageProps> = ({
                 <div className="flex items-center gap-2">
                   <span className="text-sm">🌐</span>
                   <div>
-                    <span className="text-xs font-bold text-blue-900 block">すべての人 (All)</span>
-                    <span className="text-[10px] text-blue-700">みんなの誌全全体に公開</span>
+                    <span className="text-xs font-bold text-blue-900 block">All</span>
+                    <span className="text-[10px] text-blue-700">友達追加済みのすべての友達に届きます（友達以外には非公開）</span>
                   </div>
                 </div>
-                <span className="text-[10px] bg-blue-200/80 text-blue-900 font-bold px-2 py-0.5 rounded-md">全体</span>
+                <span className="text-[10px] bg-blue-200/80 text-blue-900 font-bold px-2 py-0.5 rounded-md">全友達</span>
               </div>
             </div>
 

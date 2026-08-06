@@ -36,8 +36,8 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
   if (!isOpen) return null;
 
   const availableCategories = [
-    { id: 'Default', label: '共有する人', desc: 'フォロワー・親しいメンバー' },
-    { id: 'All', label: 'すべての人', desc: '全体公開' },
+    { id: 'Default', label: 'Default', desc: '基本共有枠' },
+    { id: 'All', label: 'All', desc: 'すべての友達（追加済み限定）' },
     ...(user?.customShareCategories || []).map((c) => ({ id: c, label: c, desc: 'カスタムグループ' })),
   ];
 

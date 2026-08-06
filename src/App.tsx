@@ -77,6 +77,22 @@ export default function App() {
     window.history.replaceState({}, '', window.location.pathname);
   };
 
+  // Direct Post Form Opener
+  const handleOpenPostForm = () => {
+    if (!currentUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    setActiveTab('moments');
+    setTimeout(() => {
+      const inputEl = document.getElementById('input-moment-content');
+      if (inputEl) {
+        inputEl.focus();
+        inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
+
   // Modals
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -247,17 +263,7 @@ export default function App() {
         user={currentUser}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onOpenProfile={() => setActiveTab('mypage')}
-        onGenerateDiaryClick={() => {
-          if (!currentUser) {
-            setIsAuthModalOpen(true);
-            return;
-          }
-          if (todayMoments.length === 0) {
-            setActiveTab('moments');
-            return;
-          }
-          setIsGeneratorModalOpen(true);
-        }}
+        onNewPostClick={handleOpenPostForm}
         hasMomentsToday={todayMoments.length > 0}
       />
 
@@ -462,17 +468,7 @@ export default function App() {
       <MobileBottomNav
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onGenerateDiaryClick={() => {
-          if (!currentUser) {
-            setIsAuthModalOpen(true);
-            return;
-          }
-          if (todayMoments.length === 0) {
-            setActiveTab('moments');
-            return;
-          }
-          setIsGeneratorModalOpen(true);
-        }}
+        onNewPostClick={handleOpenPostForm}
         hasMomentsToday={todayMoments.length > 0}
       />
     </div>

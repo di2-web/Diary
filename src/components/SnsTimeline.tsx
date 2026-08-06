@@ -33,8 +33,8 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
   // Available Category Filter Options
   const categoryFilterOptions = [
     { id: 'ALL_CATS', label: 'すべてのカテゴリ' },
-    { id: 'Default', label: '共有する人' },
-    { id: 'All', label: 'すべての人' },
+    { id: 'Default', label: 'Default' },
+    { id: 'All', label: 'All (すべての友達)' },
     ...(currentUser?.customShareCategories || []).map((c) => ({ id: c, label: c })),
   ];
 

@@ -173,7 +173,7 @@ export const MomentCard: React.FC<MomentCardProps> = ({
         {/* Categories Badges */}
         <div className="flex items-center gap-1.5 flex-wrap justify-end">
           {categories.map((cat, i) => {
-            const label = cat === 'All' ? 'すべての人' : cat === 'Default' ? '共有する人' : cat;
+            const label = cat === 'All' ? 'All' : cat === 'Default' ? 'Default' : cat;
             return (
               <span
                 key={i}

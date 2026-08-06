@@ -37,7 +37,8 @@ export const FriendManager: React.FC<FriendManagerProps> = ({ currentUser }) => 
 
   // All available categories for this user
   const allCategories = [
-    { id: 'Default', label: '共有する人 (Default)' },
+    { id: 'Default', label: 'Default (基本)' },
+    { id: 'All', label: 'All (すべての友達)' },
     ...(currentUser.customShareCategories || []).map((catName) => ({
       id: catName,
       label: catName,

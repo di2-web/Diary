@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, BookOpen, Calendar, Globe, User, LogIn } from 'lucide-react';
+import { PenLine, BookOpen, Calendar, Globe, User, LogIn } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface NavbarProps {
@@ -8,7 +8,7 @@ interface NavbarProps {
   user: UserProfile | null;
   onOpenAuth: () => void;
   onOpenProfile: () => void;
-  onGenerateDiaryClick: () => void;
+  onNewPostClick: () => void;
   hasMomentsToday: boolean;
 }
 
@@ -18,7 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   user,
   onOpenAuth,
   onOpenProfile,
-  onGenerateDiaryClick,
+  onNewPostClick,
   hasMomentsToday,
 }) => {
   return (
@@ -99,12 +99,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Action Controls & Profile */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
-            id="btn-generate-diary-nav"
-            onClick={onGenerateDiaryClick}
-            className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+            id="btn-new-post-nav"
+            onClick={onNewPostClick}
+            className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+            title="きょうの出来事・気持ちをつぶやく"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-            <span>日記を作成</span>
+            <PenLine className="w-4 h-4 text-amber-200" />
+            <span>つぶやく</span>
           </button>
 
           {user ? (

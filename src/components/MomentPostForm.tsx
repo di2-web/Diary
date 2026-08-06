@@ -64,8 +64,8 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
   const audioFileInputRef = useRef<HTMLInputElement>(null);
 
   const availableCategories = [
-    { id: 'Default', label: '共有する人', desc: '基本共有枠' },
-    { id: 'All', label: 'すべての人', desc: '全体公開' },
+    { id: 'Default', label: 'Default', desc: '基本共有枠' },
+    { id: 'All', label: 'All', desc: 'すべての友達（追加済み限定）' },
     ...(user?.customShareCategories || []).map((catName) => ({
       id: catName,
       label: catName,

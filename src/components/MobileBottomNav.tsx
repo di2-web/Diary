@@ -1,17 +1,17 @@
 import React from 'react';
-import { Globe, BookOpen, Calendar, Sparkles, User } from 'lucide-react';
+import { Globe, BookOpen, Calendar, PenLine, User } from 'lucide-react';
 
 interface MobileBottomNavProps {
   activeTab: 'sns' | 'moments' | 'mypage' | 'calendar';
   setActiveTab: (tab: 'sns' | 'moments' | 'mypage' | 'calendar') => void;
-  onGenerateDiaryClick: () => void;
+  onNewPostClick: () => void;
   hasMomentsToday: boolean;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   activeTab,
   setActiveTab,
-  onGenerateDiaryClick,
+  onNewPostClick,
   hasMomentsToday,
 }) => {
   return (
@@ -46,14 +46,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           )}
         </button>
 
-        {/* Center Floating AI Diary Generator Button */}
+        {/* Center Floating New Post Button */}
         <div className="relative -top-3 shrink-0">
           <button
-            onClick={onGenerateDiaryClick}
+            onClick={onNewPostClick}
             className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 text-stone-900 flex flex-col items-center justify-center shadow-lg active:scale-90 transition-transform cursor-pointer border-2 border-stone-900"
-            title="つぶやきからAI日記を作成"
+            title="きょうの出来事・つぶやきを投稿"
           >
-            <Sparkles className="w-5 h-5 text-stone-950" />
+            <PenLine className="w-5.5 h-5.5 text-stone-950" />
           </button>
         </div>
 
