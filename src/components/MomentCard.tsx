@@ -22,7 +22,7 @@ interface MomentCardProps {
 
 const PRESET_EMOJIS = ['❤️', '🌟', '☕', '🫂', '😊', '🎉', '👍', '👏', '🍀', '🔥'];
 
-export const MomentCard: React.FC<MomentCardProps> = ({
+export const MomentCard: React.FC<MomentCardProps> = React.memo(({
   moment,
   currentUser,
   onRequireAuth,
@@ -149,6 +149,8 @@ export const MomentCard: React.FC<MomentCardProps> = ({
             alt={moment.userDisplayName || 'ユーザー'}
             className="w-9 h-9 rounded-xl object-cover bg-amber-50 border border-stone-200"
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
           />
           <div>
             <div className="flex items-center gap-2">
@@ -215,6 +217,8 @@ export const MomentCard: React.FC<MomentCardProps> = ({
             alt="投稿画像"
             className="w-full h-full object-cover max-h-72"
             referrerPolicy="no-referrer"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       )}
@@ -316,4 +320,4 @@ export const MomentCard: React.FC<MomentCardProps> = ({
       )}
     </div>
   );
-};
+});

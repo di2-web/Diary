@@ -180,6 +180,49 @@ AIによる日記自動生成機能（Gemini API）を動かすためのキー�
 
 ---
 
+## 🚀 Netlify（ネットリファイ）へのデプロイ手順
+
+本アプリは Netlify へのデプロイ（Web公開）に完全対応しています。設定ファイル（`netlify.toml`）およびサーバーレスAPI（`netlify/functions/api.ts`）を配置済みのため、数クリックで公開できます。
+
+### 【方法A】GitHubと連携して自動デプロイする（一番おすすめ・簡単）
+
+1. **GitHub にコードをプッシュする**:
+   - 自分の GitHub アカウントに本リポジトリをコミット＆プッシュします。
+2. **Netlify にサインイン**:
+   - [Netlify (https://www.netlify.com/)](https://www.netlify.com/) にアクセスし、GitHub アカウントでログインします。
+3. **新しいサイトを追加**:
+   - **「Add new site」 ＞ 「Import an existing project」** を選択します。
+   - 連携先サービスで **「GitHub」** を選び、このプロジェクトのリポジトリを選択します。
+4. **ビルド設定の確認**:
+   - `netlify.toml` があるため、ビルド設定（Build command: `npm run build` / Publish directory: `dist`）は自動認識されます。
+5. **環境変数（`GEMINI_API_KEY`）の登録**:
+   - デプロイ設定画面の **「Environment variables」**（またはサイト設定の `Site configuration > Environment variables`）を開きます。
+   - `Key` に `GEMINI_API_KEY`、`Value` にご自身の Gemini API キーを入力します。
+6. **「Deploy」を押す**:
+   - 約1〜2分で自動ビルド＆公開が完了し、`https://xxxx.netlify.app` のURLで世界中に公開されます！
+
+---
+
+### 【方法B】Netlify CLI（コマンド）で手動デプロイする場合
+
+```bash
+# 1. Netlify CLI をグローバルインストール
+npm install -g netlify-cli
+
+# 2. Netlify にログイン
+netlify login
+
+# 3. 初回デプロイ・セットアップ
+netlify init
+
+# 4. 本番デプロイ
+netlify deploy --build --prod
+```
+
+※ デプロイ完了後、Netlify ダッシュボードの `Site configuration > Environment variables` から `GEMINI_API_KEY` を設定してください。
+
+---
+
 ### ❓ よくある質問・トラブルシューティング
 
 - **Q. `npm: command not found` と出る**

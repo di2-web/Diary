@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 // Increase payload limit for base64 image & audio uploads
 app.use(express.json({ limit: "50mb" }));
@@ -293,7 +293,19 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
+    app.use(
+      express.static(distPath, {
+        maxAge: "1d",
+        etag: true,
+        setHeaders: (res, filepath) => {
+          if (filepath.endsWith(".html")) {
+            res.setHeader("Cache-Control", "no-cache");
+          } else if (filepath.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$/)) {
+            res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+          }
+        },
+      })
+    );
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
@@ -304,4 +316,9 @@ async function startServer() {
   });
 }
 
-startServer();
+export { app };
+
+if (!process.env.NETLIFY && !process.env.LAMBDA_TASK_ROOT && !process.env.VERCEL) {
+  startServer();
+}
+

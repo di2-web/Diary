@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
-import { AuthModal } from './components/AuthModal';
 import { MomentPostForm } from './components/MomentPostForm';
 import { MomentsList } from './components/MomentsList';
-import { DiaryGeneratorModal } from './components/DiaryGeneratorModal';
 import { DiaryCard } from './components/DiaryCard';
 import { SnsTimeline } from './components/SnsTimeline';
 import { CalendarView } from './components/CalendarView';
-import { UserProfileModal } from './components/UserProfileModal';
 import { MyPage } from './components/MyPage';
+import { DiaryGeneratorModal } from './components/DiaryGeneratorModal';
+import { AuthModal } from './components/AuthModal';
+import { UserProfileModal } from './components/UserProfileModal';
 import { Moment, Diary, UserProfile, WavePoint } from './types';
 import {
   auth,

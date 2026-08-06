@@ -91,7 +91,7 @@ const EXTENDED_EMOJI_CATEGORIES: { name: string; emojis: string[] }[] = [
   }
 ];
 
-export const DiaryCard: React.FC<DiaryCardProps> = ({
+export const DiaryCard: React.FC<DiaryCardProps> = React.memo(({
   diary,
   currentUser,
   onRequireAuth,
@@ -894,4 +894,4 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
       </div>
     </article>
   );
-};
+});

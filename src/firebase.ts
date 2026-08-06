@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import {
   getFirestore,
+  enableIndexedDbPersistence,
   doc,
   getDoc,
   getDocs,
@@ -37,6 +38,19 @@ export const googleProvider = new GoogleAuthProvider();
 // Firestore with databaseId
 const dbId = firebaseConfigJson.firestoreDatabaseId;
 export const db = dbId ? getFirestore(app, dbId) : getFirestore(app);
+
+// Enable offline persistence for super fast cached reads
+try {
+  enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code === 'failed-precondition') {
+      // Multiple tabs open, persistence can only be enabled in one tab at a time.
+    } else if (err.code === 'unimplemented') {
+      // The current browser does not support all of the features required to enable persistence
+    }
+  });
+} catch {
+  // Ignore in environments where IndexedDB is disabled
+}
 
 export enum OperationType {
   CREATE = 'create',
