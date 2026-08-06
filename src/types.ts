@@ -100,3 +100,15 @@ export interface GenerationProgressStep {
   label: string;
   description: string;
 }
+
+export interface FriendRelation {
+  id: string; // ドキュメントID
+  userId: string; // 設定しているユーザーのUID
+  friendUid: string; // 友達のUID
+  friendDisplayName: string;
+  friendPhotoURL?: string;
+  friendBio?: string;
+  assignedCategories: string[]; // 割り振った共有カテゴリ (['Default', '家族'] 等)
+  createdAt: any;
+}
+

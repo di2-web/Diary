@@ -25,12 +25,57 @@ import {
   addDoc,
   deleteDoc,
 } from './firebase';
-import { Sparkles, Calendar as CalendarIcon, Wand2, Plus, BookOpen } from 'lucide-react';
+import { Sparkles, Calendar as CalendarIcon, Wand2, Plus, BookOpen, UserPlus } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'sns' | 'moments' | 'mypage' | 'calendar'>('sns');
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+
+  // Pending Invitation from URL params (?inviteUid=xxx&name=xxx)
+  const [pendingInvite, setPendingInvite] = useState<{ inviteUid: string; name: string } | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const inviteUid = params.get('inviteUid');
+    const name = params.get('name') || 'ユーザー';
+    if (inviteUid) {
+      setPendingInvite({ inviteUid, name });
+    }
+  }, []);
+
+  const handleAcceptInvite = async () => {
+    if (!pendingInvite) return;
+    if (!currentUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'friends'), {
+        userId: currentUser.uid,
+        friendUid: pendingInvite.inviteUid,
+        friendDisplayName: pendingInvite.name,
+        friendPhotoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${pendingInvite.inviteUid}`,
+        friendBio: '招待リンクから登録',
+        assignedCategories: ['Default'],
+        createdAt: new Date().toISOString(),
+      });
+
+      alert(`「${pendingInvite.name}」さんを友達に追加しました！マイページからカテゴリを設定できます。`);
+      setPendingInvite(null);
+      window.history.replaceState({}, '', window.location.pathname);
+      setActiveTab('mypage');
+    } catch (err) {
+      console.error('Accept invite error:', err);
+      alert('友達の追加に失敗しました。');
+    }
+  };
+
+  const handleDismissInvite = () => {
+    setPendingInvite(null);
+    window.history.replaceState({}, '', window.location.pathname);
+  };
 
   // Modals
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -218,6 +263,42 @@ export default function App() {
 
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        {/* Pending Friend Invitation Banner */}
+        {pendingInvite && (
+          <div className="mb-6 bg-gradient-to-r from-amber-600 via-amber-700 to-stone-800 text-white rounded-2xl p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in border border-amber-500">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 border border-white/30">
+                <UserPlus className="w-5 h-5 text-amber-200" />
+              </div>
+              <div>
+                <span className="font-bold text-sm block">
+                  「{pendingInvite.name}」さんからの友達追加の招待です！
+                </span>
+                <span className="text-xs text-amber-100 block mt-0.5">
+                  友達に追加すると、相手の限定公開されたつぶやきや日記をタイムラインで共有できるようになります。
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+              <button
+                type="button"
+                onClick={handleAcceptInvite}
+                className="flex-1 sm:flex-none bg-amber-200 hover:bg-white text-stone-900 font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-all cursor-pointer"
+              >
+                友達に追加する
+              </button>
+              <button
+                type="button"
+                onClick={handleDismissInvite}
+                className="text-xs text-amber-200 hover:text-white px-2 py-2 cursor-pointer shrink-0"
+              >
+                あとで
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Tab 1: SNS Timeline */}
         {activeTab === 'sns' && (
           <SnsTimeline

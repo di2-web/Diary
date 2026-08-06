@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { UserProfile, DiaryStyle } from '../types';
 import { doc, updateDoc, db, firebaseSignOut, auth } from '../firebase';
 import { User, LogOut, Check, Users, Plus, Trash2, Settings, Sparkles, Shield, Bookmark, Heart } from 'lucide-react';
+import { FriendManager } from './FriendManager';
 
 interface MyPageProps {
+
   user: UserProfile | null;
   onUserUpdated: (updatedUser: UserProfile) => void;
   onSignOut: () => void;
@@ -289,7 +291,11 @@ export const MyPage: React.FC<MyPageProps> = ({
           </div>
         </div>
 
+        {/* Friend Manager & Category Association Section */}
+        <FriendManager currentUser={user} />
+
         {/* Action buttons */}
+
         <div className="flex items-center justify-between pt-2">
           <button
             type="button"
