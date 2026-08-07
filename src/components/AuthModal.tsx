@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, ShieldCheck, Heart } from 'lucide-react';
+import { X, Sparkles, ShieldCheck, Heart, BookOpen, Users, Lock } from 'lucide-react';
 import {
   signInWithPopup,
   googleProvider,
@@ -39,9 +39,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onUserSet
       } else {
         profileData = {
           uid: u.uid,
-          displayName: u.displayName || 'LifeLogユーザー',
+          displayName: u.displayName || 'WaveLogユーザー',
           photoURL: u.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${u.uid}`,
-          bio: 'AI日記で日々の記録を楽しんでいます✨',
+          bio: 'AI手帳で毎日の記録を静かに楽しんでいます✨',
           diaryStyle: 'poetic',
           createdAt: new Date().toISOString(),
         };
@@ -52,36 +52,69 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onUserSet
       onClose();
     } catch (err: any) {
       console.error('Google Sign In Error:', err);
-      setError('Googleログインに失敗しました。もう一度お試しください。');
+      if (err?.code === 'auth/unauthorized-domain') {
+        const hostname = window.location.hostname;
+        setError(
+          `【Firebase設定エラー】現在のドメイン (${hostname}) が Firebase Authentication の「承認済みドメイン」に登録されていません。\n` +
+          `Firebase Console > Authentication > 設定 > 承認済みドメイン に「${hostname}」を追加してください。`
+        );
+      } else if (err?.code === 'auth/admin-restricted-operation') {
+        setError('Firebase認証設定でこのログイン操作が制限されています。管理者設定をご確認ください。');
+      } else {
+        setError('Googleログインに失敗しました。もう一度お試しください。');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-amber-50 rounded-2xl max-w-md w-full border border-amber-200/80 shadow-2xl p-6 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#3d3546]/50 backdrop-blur-md animate-fade-in">
+      <div className="bg-white rounded-3xl max-w-md w-full border border-[#e8e2f0] shadow-2xl p-6 sm:p-8 relative overflow-hidden">
+        {/* Decorative background glow */}
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-[#9880be]/10 rounded-full blur-2xl pointer-events-none" />
+
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-2xl text-[#8e859b] hover:text-[#3d3546] hover:bg-[#f3eff8] transition-colors cursor-pointer"
+          title="閉じる"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-amber-600 via-rose-500 to-amber-400 flex items-center justify-center text-white shadow-lg mb-3">
-            <Sparkles className="w-8 h-8" />
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-[#9880be] to-[#8871b0] flex items-center justify-center text-white shadow-md mb-3.5">
+            <BookOpen className="w-7 h-7" />
           </div>
-          <h2 className="font-serif font-bold text-2xl text-stone-800">
-            LifeLog AI へようこそ
+          <h2 className="font-bold text-2xl text-[#3d3546] tracking-tight">
+            WaveLog へようこそ
           </h2>
-          <p className="text-stone-600 text-xs mt-1">
-            日々の写真や音声、つぶやきからあなただけのAI日記を自動生成
+          <p className="text-[#6e637c] text-xs mt-1.5 leading-relaxed">
+            日々のつぶやきや気分の波からAIが素敵な手帳日記を紡ぎ、大切な人とだけ静かにつながれます
           </p>
         </div>
 
+        {/* Highlight Feature Badges */}
+        <div className="grid grid-cols-2 gap-2 mb-6">
+          <div className="bg-[#f8f5f0] p-2.5 rounded-2xl border border-[#ded5e8] flex items-center gap-2">
+            <Lock className="w-4 h-4 text-[#9880be] shrink-0" />
+            <div className="text-left">
+              <span className="text-[11px] font-bold text-[#3d3546] block leading-tight">プライバシー安心</span>
+              <span className="text-[9px] text-[#6e637c] block">友達限定の共有カテゴリ</span>
+            </div>
+          </div>
+
+          <div className="bg-[#f8f5f0] p-2.5 rounded-2xl border border-[#ded5e8] flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#9880be] shrink-0" />
+            <div className="text-left">
+              <span className="text-[11px] font-bold text-[#3d3546] block leading-tight">AI手帳自動生成</span>
+              <span className="text-[9px] text-[#6e637c] block">思い出と写真を一括編集</span>
+            </div>
+          </div>
+        </div>
+
         {error && (
-          <div className="mb-4 p-3.5 rounded-xl bg-rose-100 border border-rose-300 text-rose-800 text-xs shadow-xs">
+          <div className="mb-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs shadow-2xs font-medium whitespace-pre-line leading-relaxed">
             <p>{error}</p>
           </div>
         )}
@@ -91,9 +124,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onUserSet
             id="btn-google-login"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-stone-50 border border-stone-300 text-stone-700 font-medium py-3 rounded-xl shadow-2xs transition-all active:scale-98 cursor-pointer disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-[#f8f5f0] border border-[#ded5e8] text-[#3d3546] font-bold text-xs sm:text-sm py-3.5 px-4 rounded-2xl shadow-xs transition-all active:scale-98 cursor-pointer disabled:opacity-50"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
@@ -111,19 +144,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onUserSet
                 d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.25 2.63 1.23 6.58l4.05 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
               />
             </svg>
-            Googleアカウントでログイン
+            <span>{loading ? 'ログイン処理中...' : 'Googleアカウントでログイン'}</span>
           </button>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-amber-200/60 flex items-center justify-center gap-4 text-[11px] text-stone-500">
+        <div className="mt-6 pt-4 border-t border-[#f0ebf7] flex items-center justify-center gap-4 text-[11px] text-[#6e637c]">
           <span className="flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Firebase認証
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> 安全な認証システム
           </span>
           <span className="flex items-center gap-1">
-            <Heart className="w-3.5 h-3.5 text-rose-500" /> 無料で使える
+            <Heart className="w-3.5 h-3.5 text-rose-500" /> 無料で利用可能
           </span>
         </div>
       </div>
     </div>
   );
 };
+

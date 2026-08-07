@@ -131,9 +131,11 @@ export default function App() {
           setCurrentUser(newProfile);
         }
       } else {
-        // Auto-signin anonymously so all guests get an authentic Firebase auth token
+        // Auto-signin anonymously if enabled in Firebase console, otherwise handle gracefully
         signInAnonymously(auth).catch((err) => {
-          console.error('Anonymous sign in error:', err);
+          // Anonymous authentication might be disabled in Firebase Console (auth/admin-restricted-operation)
+          // Allow unauthenticated guest browsing without throwing errors
+          console.warn('Anonymous sign-in unavailable:', err?.code || err);
         });
       }
       setAuthChecked(true);

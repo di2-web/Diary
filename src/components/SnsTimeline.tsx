@@ -33,11 +33,44 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
 
   // Available Category Filter Options
   const categoryFilterOptions = [
-    { id: 'ALL_CATS', label: 'すべてのカテゴリ' },
-    { id: 'Default', label: 'Default' },
+    { id: 'ALL_CATS', label: 'すべての表示対象' },
+    { id: 'Default', label: 'Default (基本共有)' },
     { id: 'All', label: 'All (すべての友達)' },
+    { id: 'WORLD', label: '全体公開 (WORLD)' },
     ...(currentUser?.customShareCategories || []).map((c) => ({ id: c, label: c })),
   ];
+
+  // Store friendships where author added currentUser as friend (map of authorUid -> assignedCategories)
+  const [friendships, setFriendships] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    if (!currentUser?.uid) {
+      setFriendships({});
+      return;
+    }
+
+    const q = query(
+      collection(db, 'friends'),
+      where('friendUid', '==', currentUser.uid)
+    );
+
+    const unsub = onSnapshot(
+      q,
+      (snapshot) => {
+        const map: Record<string, string[]> = {};
+        snapshot.forEach((d) => {
+          const data = d.data();
+          map[data.userId] = data.assignedCategories || ['Default', 'All'];
+        });
+        setFriendships(map);
+      },
+      (error) => {
+        console.error('Error fetching friend permissions:', error);
+      }
+    );
+
+    return () => unsub();
+  }, [currentUser?.uid]);
 
   // Fetch public diaries
   useEffect(() => {
@@ -139,8 +172,33 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
   // Sort descending
   combinedItems.sort((a, b) => new Date(b.dateSort).getTime() - new Date(a.dateSort).getTime());
 
-  // Apply Search & Category Filters
+  // Apply Privacy, Search & Category Filters
   const filteredItems = combinedItems.filter((item) => {
+    // 0. Friendship & Privacy Permission Check
+    const authorUid = item.data.userId;
+    const isMyOwnPost = currentUser && authorUid === currentUser.uid;
+    const itemCats = item.data.shareCategories || ['Default', 'All'];
+    const isWorldPublic = itemCats.includes('WORLD');
+
+    if (!isMyOwnPost && !isWorldPublic) {
+      // Post is restricted to friends (Default, All, custom categories)
+      if (!currentUser) return false; // Non-logged-in users cannot see friends-only posts
+
+      const assignedByAuthor = friendships[authorUid];
+      if (!assignedByAuthor) {
+        // Viewer is not registered in author's friends list
+        return false;
+      }
+
+      // Check category match
+      const isSharedWithAllFriends = itemCats.includes('All');
+      const hasMatchingCategory = itemCats.some((cat) => assignedByAuthor.includes(cat));
+
+      if (!isSharedWithAllFriends && !hasMatchingCategory) {
+        return false;
+      }
+    }
+
     // 1. Search Query Filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -160,9 +218,7 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
 
     // 2. Category Filter
     if (categoryFilter !== 'ALL_CATS') {
-      const itemCats = item.data.shareCategories || ['Default', 'All'];
       if (!itemCats.includes(categoryFilter)) {
-
         return false;
       }
     }

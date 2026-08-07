@@ -36,9 +36,10 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
   if (!isOpen) return null;
 
   const availableCategories = [
-    { id: 'Default', label: 'Default', desc: '基本共有枠' },
-    { id: 'All', label: 'All', desc: 'すべての友達（追加済み限定）' },
-    ...(user?.customShareCategories || []).map((c) => ({ id: c, label: c, desc: 'カスタムグループ' })),
+    { id: 'Default', label: 'Default', desc: '基本共有枠（登録した友達限定）' },
+    { id: 'All', label: 'All', desc: 'すべての友達（追加済み友達限定）' },
+    { id: 'WORLD', label: '全体公開 (WORLD)', desc: '友達以外も含めて全ユーザーに公開' },
+    ...(user?.customShareCategories || []).map((c) => ({ id: c, label: c, desc: 'カスタムグループ（対象の友達限定）' })),
   ];
 
   const toggleCategory = (catId: string) => {

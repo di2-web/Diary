@@ -64,12 +64,13 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
   const audioFileInputRef = useRef<HTMLInputElement>(null);
 
   const availableCategories = [
-    { id: 'Default', label: 'Default', desc: '基本共有枠' },
-    { id: 'All', label: 'All', desc: 'すべての友達（追加済み限定）' },
+    { id: 'Default', label: 'Default', desc: '基本共有枠（登録した友達限定）' },
+    { id: 'All', label: 'All', desc: 'すべての友達（追加済み友達限定）' },
+    { id: 'WORLD', label: '全体公開 (WORLD)', desc: '友達以外も含めて全ユーザーに公開' },
     ...(user?.customShareCategories || []).map((catName) => ({
       id: catName,
       label: catName,
-      desc: 'カスタムグループ',
+      desc: 'カスタムグループ（対象の友達限定）',
     })),
   ];
 
