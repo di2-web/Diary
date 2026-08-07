@@ -1,8 +1,46 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
+
+    // Users Collection
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    // Diaries Collection
+    match /diaries/{diaryId} {
+      allow read, write: if true;
+    }
+
+    // Moments Collection
+    match /moments/{momentId} {
+      allow read, write: if true;
+    }
+
+    // Friends Collection
+    match /friends/{friendId} {
+      allow read, write: if true;
+    }
+
+    // Diary Likes & Reactions
+    match /diary_likes/{likeId} {
+      allow read, write: if true;
+    }
+
+    // Moment Likes & Reactions
+    match /moment_likes/{likeId} {
+      allow read, write: if true;
+    }
+
+    // Diary Comments
+    match /diary_comments/{commentId} {
+      allow read, write: if true;
+    }
+
+    // Moment Comments
+    match /moment_comments/{commentId} {
       allow read, write: if true;
     }
   }
 }
+

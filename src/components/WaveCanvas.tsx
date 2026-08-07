@@ -342,18 +342,18 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
   };
 
   return (
-    <div className="bg-amber-50/70 rounded-2xl border border-amber-200/80 p-5 shadow-sm space-y-4">
+    <div className="bg-white rounded-3xl border border-[#e8e2f0] p-5 shadow-2xs space-y-4">
       {/* Header Info */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-xl shadow-xs">
+          <div className="p-2 bg-[#9880be] text-white rounded-2xl shadow-2xs">
             <Activity className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-serif font-bold text-base text-stone-800 flex items-center gap-2">
+            <h3 className="font-bold text-base text-[#3d3546] flex items-center gap-2">
               気分の波 (Wave Canvas)
             </h3>
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-[#6e637c]">
               時間軸上で指やマウスを滑らせて、今日の気分の高低をスケッチ（AIが山場のエピソードを重視します）
             </p>
           </div>
@@ -362,10 +362,10 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
         <div className="flex items-center gap-1.5 text-xs">
           <button
             onClick={() => setPoints(createInitialPoints())}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-600 hover:text-amber-700 hover:bg-amber-50 transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-[#f3eff8] border border-[#ded5e8] text-[#3d3546] hover:bg-[#eae3f2] transition-colors cursor-pointer font-semibold"
             title="リセット"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className="w-3.5 h-3.5 text-[#9880be]" />
             リセット
           </button>
         </div>
@@ -373,42 +373,42 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
 
       {/* Preset Quick Buttons */}
       <div className="flex items-center gap-2 flex-wrap text-xs pt-1">
-        <span className="text-stone-400 font-medium text-[11px]">クイック波型:</span>
+        <span className="text-[#8e859b] font-semibold text-[11px]">クイック波型:</span>
         <button
           onClick={() => applyPreset('flat')}
-          className="px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:border-amber-400 hover:bg-amber-50 cursor-pointer"
+          className="px-3 py-1.5 rounded-2xl bg-[#f3eff8] border border-[#ded5e8] text-[#3d3546] hover:border-[#9880be] hover:bg-white cursor-pointer font-medium"
         >
           穏やか
         </button>
         <button
           onClick={() => applyPreset('high_afternoon')}
-          className="px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:border-amber-400 hover:bg-amber-50 cursor-pointer"
+          className="px-3 py-1.5 rounded-2xl bg-[#f3eff8] border border-[#ded5e8] text-[#3d3546] hover:border-[#9880be] hover:bg-white cursor-pointer font-medium"
         >
           昼に盛り上がり
         </button>
         <button
           onClick={() => applyPreset('rollercoaster')}
-          className="px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:border-amber-400 hover:bg-amber-50 cursor-pointer"
+          className="px-3 py-1.5 rounded-2xl bg-[#f3eff8] border border-[#ded5e8] text-[#3d3546] hover:border-[#9880be] hover:bg-white cursor-pointer font-medium"
         >
           波乱万丈
         </button>
         <button
           onClick={() => applyPreset('night_owl')}
-          className="px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-600 hover:border-amber-400 hover:bg-amber-50 cursor-pointer"
+          className="px-3 py-1.5 rounded-2xl bg-[#f3eff8] border border-[#ded5e8] text-[#3d3546] hover:border-[#9880be] hover:bg-white cursor-pointer font-medium"
         >
           夜型ハイテンション
         </button>
       </div>
 
       {/* Canvas Container */}
-      <div ref={containerRef} className="relative w-full bg-white rounded-xl border border-amber-200/90 shadow-inner overflow-hidden select-none">
+      <div ref={containerRef} className="relative w-full bg-[#f8f5f0]/60 rounded-2xl border border-[#ded5e8] shadow-2xs overflow-hidden select-none">
         {/* Top/Bottom Indicator Labels */}
-        <div className="absolute top-2 left-3 flex items-center gap-1 text-[11px] font-medium text-amber-700 pointer-events-none">
-          <Smile className="w-3.5 h-3.5 text-amber-500" />
+        <div className="absolute top-2 left-3 flex items-center gap-1 text-[11px] font-bold text-[#8572a7] pointer-events-none">
+          <Smile className="w-3.5 h-3.5 text-[#9880be]" />
           <span>最高（ハイ）</span>
         </div>
-        <div className="absolute bottom-2 left-3 flex items-center gap-1 text-[11px] font-medium text-indigo-600 pointer-events-none">
-          <Frown className="w-3.5 h-3.5 text-indigo-400" />
+        <div className="absolute bottom-2 left-3 flex items-center gap-1 text-[11px] font-bold text-[#6e637c] pointer-events-none">
+          <Frown className="w-3.5 h-3.5 text-[#8e859b]" />
           <span>ロー（落ち着き・テンション低）</span>
         </div>
 
@@ -443,10 +443,10 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
                 <button
                   key={m.id}
                   onClick={() => setActiveMoment(activeMoment?.id === m.id ? null : m)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs shrink-0 transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl border text-xs shrink-0 transition-all cursor-pointer ${
                     activeMoment?.id === m.id
-                      ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
-                      : 'bg-white text-stone-700 border-amber-200 hover:border-amber-400'
+                      ? 'bg-[#9880be] text-white border-[#8572a7] shadow-xs font-semibold'
+                      : 'bg-white text-[#3d3546] border-[#ded5e8] hover:border-[#9880be]'
                   }`}
                 >
                   {getMomentIcon(m.type)}
@@ -459,17 +459,17 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
 
           {/* Active Moment Preview Box */}
           {activeMoment && (
-            <div className="p-3 bg-white rounded-xl border border-amber-300 shadow-xs flex items-center gap-3 animate-fade-in text-xs">
+            <div className="p-3 bg-white rounded-2xl border border-[#ded5e8] shadow-xs flex items-center gap-3 animate-fade-in text-xs">
               {activeMoment.mediaUrl && (
                 <img
                   src={activeMoment.mediaUrl}
                   alt="preview"
-                  className="w-12 h-12 object-cover rounded-lg shrink-0 border border-stone-200"
+                  className="w-12 h-12 object-cover rounded-xl shrink-0 border border-[#e8e2f0]"
                 />
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-stone-800 truncate">{activeMoment.content}</p>
-                <p className="text-[11px] text-stone-400 mt-0.5">
+                <p className="font-semibold text-[#3d3546] truncate">{activeMoment.content}</p>
+                <p className="text-[11px] text-[#6e637c] mt-0.5">
                   波の高さに応じて、AIがこの投稿の印象や感情表現の強弱を調整します。
                 </p>
               </div>
@@ -480,17 +480,17 @@ export const WaveCanvas: React.FC<WaveCanvasProps> = ({
 
       {/* Bottom Action CTA */}
       {onGenerateWithWave && (
-        <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-amber-200/60">
-          <div className="text-[11px] sm:text-xs text-stone-500">
+        <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[#e8e2f0]">
+          <div className="text-[11px] sm:text-xs text-[#6e637c]">
             波の振り幅の大きい時間帯の出来事をAIが優先的に日記のエピソードにします
           </div>
 
           <button
             id="btn-generate-with-wave"
             onClick={() => onGenerateWithWave(points)}
-            className="flex items-center gap-2 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer text-xs shrink-0 whitespace-nowrap"
+            className="flex items-center gap-2 bg-[#9880be] hover:bg-[#8871b0] text-white font-bold px-4 py-2.5 rounded-2xl shadow-xs transition-all active:scale-95 cursor-pointer text-xs shrink-0 whitespace-nowrap"
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-4 h-4 text-white/80" />
             この気分の波で日記を作成する
           </button>
         </div>

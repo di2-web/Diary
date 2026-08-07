@@ -7,6 +7,7 @@ import { DiaryCard } from './components/DiaryCard';
 import { SnsTimeline } from './components/SnsTimeline';
 import { CalendarView } from './components/CalendarView';
 import { MyPage } from './components/MyPage';
+import { CustomDatePicker } from './components/CustomDatePicker';
 import { DiaryGeneratorModal } from './components/DiaryGeneratorModal';
 import { AuthModal } from './components/AuthModal';
 import { UserProfileModal } from './components/UserProfileModal';
@@ -14,6 +15,7 @@ import { Moment, Diary, UserProfile, WavePoint } from './types';
 import {
   auth,
   onAuthStateChanged,
+  signInAnonymously,
   doc,
   getDoc,
   setDoc,
@@ -129,8 +131,10 @@ export default function App() {
           setCurrentUser(newProfile);
         }
       } else {
-        // Auto-create persistent anonymous user for seamless instant demo experience
-        setCurrentUser(null);
+        // Auto-signin anonymously so all guests get an authentic Firebase auth token
+        signInAnonymously(auth).catch((err) => {
+          console.error('Anonymous sign in error:', err);
+        });
       }
       setAuthChecked(true);
     });
@@ -268,19 +272,19 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pb-16">
         {/* Pending Friend Invitation Banner */}
         {pendingInvite && (
-          <div className="mb-6 bg-gradient-to-r from-amber-600 via-amber-700 to-stone-800 text-white rounded-2xl p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in border border-amber-500">
+          <div className="mb-6 bg-gradient-to-r from-[#8572a7] via-[#9880be] to-[#3d3546] text-white rounded-3xl p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in border border-[#ded5e8]">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 border border-white/30">
-                <UserPlus className="w-5 h-5 text-amber-200" />
+                <UserPlus className="w-5 h-5 text-white" />
               </div>
               <div>
                 <span className="font-bold text-sm block">
                   「{pendingInvite.name}」さんからの友達追加の招待です！
                 </span>
-                <span className="text-xs text-amber-100 block mt-0.5">
+                <span className="text-xs text-white/80 block mt-0.5">
                   友達に追加すると、相手の限定公開されたつぶやきや日記をタイムラインで共有できるようになります。
                 </span>
               </div>
@@ -290,14 +294,14 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleAcceptInvite}
-                className="flex-1 sm:flex-none bg-amber-200 hover:bg-white text-stone-900 font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-all cursor-pointer"
+                className="flex-1 sm:flex-none bg-white hover:bg-[#f8f5f0] text-[#3d3546] font-bold text-xs px-4 py-2.5 rounded-2xl shadow-xs transition-all cursor-pointer"
               >
                 友達に追加する
               </button>
               <button
                 type="button"
                 onClick={handleDismissInvite}
-                className="text-xs text-amber-200 hover:text-white px-2 py-2 cursor-pointer shrink-0"
+                className="text-xs text-white/80 hover:text-white px-2 py-2 cursor-pointer shrink-0"
               >
                 あとで
               </button>
@@ -318,14 +322,11 @@ export default function App() {
         {activeTab === 'moments' && (
           <div className="space-y-6 max-w-4xl mx-auto">
             {/* Date Selector Header */}
-            <div className="bg-white rounded-2xl p-3.5 sm:p-4 border border-stone-200/80 shadow-xs flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-4">
-              <div className="flex items-center gap-2 shrink-0">
-                <CalendarIcon className="w-5 h-5 text-amber-600 shrink-0" />
-                <input
-                  type="date"
+            <div className="bg-white rounded-3xl p-3.5 sm:p-4 border border-[#e8e2f0] shadow-2xs flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-4">
+              <div className="flex items-center gap-2 shrink-0 max-w-full">
+                <CustomDatePicker
                   value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="rounded-xl border border-stone-300 px-3 py-1 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500 bg-stone-50 font-medium cursor-pointer shrink-0"
+                  onChange={setSelectedDate}
                 />
               </div>
 
@@ -338,16 +339,16 @@ export default function App() {
                     }
                     setIsGeneratorModalOpen(true);
                   }}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-white bg-[#9880be] hover:bg-[#8871b0] px-4.5 py-2 rounded-2xl transition-all cursor-pointer shadow-xs whitespace-nowrap shrink-0 active:scale-95"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
-                  <span>日記を作成</span>
+                  <Sparkles className="w-3.5 h-3.5 text-white/80 shrink-0" />
+                  <span>日記アルバムを作成</span>
                 </button>
 
                 {todayMoments.length === 0 && (
                   <button
                     onClick={handleLoadSampleMoments}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-[#3d3546] bg-[#f3eff8] hover:bg-[#eae3f2] px-3.5 py-2 rounded-2xl transition-all cursor-pointer whitespace-nowrap shrink-0 border border-[#ded5e8]"
                   >
                     サンプル追加
                   </button>
@@ -358,19 +359,19 @@ export default function App() {
             {/* If Diary is already generated for selectedDate */}
             {todayDiary ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-amber-500" />
-                    <h2 className="font-serif font-bold text-xl text-stone-800">
+                    <Sparkles className="w-5 h-5 text-[#9880be]" />
+                    <h2 className="font-bold text-xl text-[#3d3546]">
                       {selectedDate} のAI日記（生成済み）
                     </h2>
                   </div>
 
                   <button
                     onClick={() => setIsGeneratorModalOpen(true)}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-white hover:bg-stone-50 border border-stone-300 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-[#3d3546] bg-white hover:bg-[#f3eff8] border border-[#ded5e8] px-3.5 py-1.5 rounded-2xl transition-all cursor-pointer shadow-2xs"
                   >
-                    <Wand2 className="w-3.5 h-3.5 text-amber-600" />
+                    <Wand2 className="w-3.5 h-3.5 text-[#9880be]" />
                     再生成する
                   </button>
                 </div>

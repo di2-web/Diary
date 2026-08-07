@@ -121,7 +121,7 @@ export const DiaryCard: React.FC<DiaryCardProps> = React.memo(({
 
   const cardRef = useRef<HTMLDivElement | null>(null);
 
-  const isOwner = !currentUser?.uid || currentUser?.uid === diary.userId;
+  const isOwner = Boolean(currentUser?.uid && currentUser.uid === diary.userId);
 
   // Sync props if changed
   useEffect(() => {
@@ -350,8 +350,8 @@ export const DiaryCard: React.FC<DiaryCardProps> = React.memo(({
     <article
       ref={cardRef}
       onClick={handleCardClickToStamp}
-      className={`rounded-2xl border shadow-sm overflow-hidden transition-all hover:shadow-md relative bg-white border-stone-200 ${
-        selectedStamp && isDecoOpen ? 'cursor-crosshair ring-2 ring-amber-400/80' : ''
+      className={`rounded-3xl border shadow-xs overflow-hidden transition-all hover:shadow-md relative bg-white border-purple-100/80 ${
+        selectedStamp && isDecoOpen ? 'cursor-crosshair ring-2 ring-purple-400/80' : ''
       }`}
     >
       {/* Stamp Placement Banner Guide */}

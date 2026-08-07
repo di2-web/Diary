@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Diary, Moment, UserProfile } from '../types';
 import { DiaryCard } from './DiaryCard';
 import { MomentCard } from './MomentCard';
-import { Globe, Search, Sparkles, Filter, RefreshCw, BookOpen, MessageSquare, Users } from 'lucide-react';
+import { Globe, Search, Sparkles, Filter, RefreshCw, BookOpen, MessageSquare, Users, ChevronDown } from 'lucide-react';
+import { CustomSelect } from './CustomSelect';
 import { collection, query, where, onSnapshot, db, deleteDoc, doc } from '../firebase';
 
 interface SnsTimelineProps {
@@ -91,6 +92,9 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
   }, []);
 
   const handleDeleteDiary = async (id: string) => {
+    if (!currentUser) return;
+    const target = diaries.find((d) => d.id === id);
+    if (!target || target.userId !== currentUser.uid) return;
     try {
       await deleteDoc(doc(db, 'diaries', id));
     } catch (err) {
@@ -99,6 +103,9 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
   };
 
   const handleDeleteMoment = async (id: string) => {
+    if (!currentUser) return;
+    const target = moments.find((m) => m.id === id);
+    if (!target || target.userId !== currentUser.uid) return;
     try {
       await deleteDoc(doc(db, 'moments', id));
     } catch (err) {
@@ -168,94 +175,89 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header Banner */}
-      <div className="bg-stone-800 text-stone-100 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#f3eff8] via-[#e9e2f2] to-[#f8f5f0] text-[#3d3546] rounded-3xl p-6 sm:p-8 border border-[#e2d9eb] shadow-xs relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-56 h-56 bg-[#9880be]/10 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 bg-stone-700 text-amber-200 text-xs font-medium px-3 py-1 rounded-full mb-3">
-            <Globe className="w-3.5 h-3.5" /> みんなの誌（タイムライン）
+          <div className="inline-flex items-center gap-1.5 bg-white/80 border border-[#ded5e8] text-[#8572a7] text-xs font-semibold px-3.5 py-1 rounded-full mb-3 shadow-2xs">
+            <Globe className="w-3.5 h-3.5 text-[#9880be]" /> 静かなつながりタイムライン
           </div>
-          <h1 className="font-serif font-bold text-2xl sm:text-3xl text-white tracking-tight leading-snug mb-2">
-            日々のつぶやきとAI手帳日記。
+          <h1 className="font-bold text-2xl sm:text-3xl text-[#3d3546] tracking-tight leading-snug mb-2">
+            何気ない毎日を残して、大切な人とつながる。
           </h1>
-          <p className="text-stone-300 text-xs sm:text-sm leading-relaxed mb-4">
-            公開された日々の記録やつぶやきがリアルタイムで共有されます。共有カテゴリごとに見たい投稿を絞り込み表示できます。
+          <p className="text-[#6e637c] text-xs sm:text-sm leading-relaxed mb-5">
+            日々のちょっとしたつぶやきや、AIがまとめた素敵な手帳アルバムが静かに届きます。
           </p>
 
           <button
             onClick={onNavigateToMoments}
-            className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-2xs active:scale-95 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-[#9880be] hover:bg-[#8871b0] text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-xs active:scale-95 transition-all cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-amber-200" />
-            自分の記録を付ける
+            <Sparkles className="w-4 h-4 text-white/80" />
+            自分の記録をつける
           </button>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-xs space-y-3">
+      <div className="bg-white rounded-3xl p-4 border border-[#e8e2f0] shadow-2xs space-y-3">
         {/* Top Control Bar: Search */}
         <div className="relative w-full">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#9880be] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="キーワードや名前で検索..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl border border-stone-200 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500/30 bg-stone-50"
+            className="w-full pl-10 pr-4 py-2 rounded-2xl border border-[#ded5e8] text-xs text-[#3d3546] placeholder-[#a298b0] focus:outline-hidden focus:ring-2 focus:ring-[#9880be]/30 bg-[#f8f5f0]/50 font-medium"
           />
         </div>
 
         {/* Filters Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-stone-100">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-[#f0ebf7]">
           {/* Content Type Tabs */}
-          <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl shrink-0">
+          <div className="flex items-center gap-1 bg-[#f3eff8] p-1 rounded-2xl border border-[#e8e2f0] overflow-x-auto max-w-full">
             <button
               onClick={() => setContentTypeFilter('all')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 contentTypeFilter === 'all'
-                  ? 'bg-white text-stone-900 font-bold shadow-2xs'
-                  : 'text-stone-600 hover:text-stone-900'
+                  ? 'bg-white text-[#3d3546] shadow-2xs font-bold'
+                  : 'text-[#6e637c] hover:text-[#3d3546]'
               }`}
             >
               すべて ({diaries.length + moments.length})
             </button>
             <button
               onClick={() => setContentTypeFilter('diaries')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0 ${
                 contentTypeFilter === 'diaries'
-                  ? 'bg-white text-amber-800 font-bold shadow-2xs'
-                  : 'text-stone-600 hover:text-stone-900'
+                  ? 'bg-white text-[#3d3546] shadow-2xs font-bold'
+                  : 'text-[#6e637c] hover:text-[#3d3546]'
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
+              <BookOpen className="w-3.5 h-3.5 text-[#9880be]" />
               <span>手帳日記 ({diaries.length})</span>
             </button>
             <button
               onClick={() => setContentTypeFilter('moments')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1 ${
+              className={`px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0 ${
                 contentTypeFilter === 'moments'
-                  ? 'bg-white text-amber-800 font-bold shadow-2xs'
-                  : 'text-stone-600 hover:text-stone-900'
+                  ? 'bg-white text-[#3d3546] shadow-2xs font-bold'
+                  : 'text-[#6e637c] hover:text-[#3d3546]'
               }`}
             >
-              <MessageSquare className="w-3.5 h-3.5" />
+              <MessageSquare className="w-3.5 h-3.5 text-[#9880be]" />
               <span>つぶやき ({moments.length})</span>
             </button>
           </div>
 
           {/* Category Filter Selector */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Users className="w-4 h-4 text-amber-600 shrink-0" />
-            <select
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto max-w-full">
+            <Users className="w-4 h-4 text-[#9880be] shrink-0" />
+            <CustomSelect
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="rounded-xl border border-stone-300 px-3 py-1.5 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500 bg-amber-50/50 font-medium cursor-pointer"
-            >
-              {categoryFilterOptions.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              options={categoryFilterOptions}
+              onChange={setCategoryFilter}
+            />
           </div>
         </div>
       </div>
@@ -263,23 +265,23 @@ export const SnsTimeline: React.FC<SnsTimelineProps> = ({
       {/* Timeline Feed */}
       {isLoading ? (
         <div className="py-12 text-center space-y-3">
-          <RefreshCw className="w-8 h-8 text-amber-600 animate-spin mx-auto" />
-          <p className="text-stone-500 text-xs">タイムラインを読み込んでいます...</p>
+          <RefreshCw className="w-8 h-8 text-[#9880be] animate-spin mx-auto" />
+          <p className="text-[#6e637c] text-xs font-medium">タイムラインを読み込んでいます...</p>
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="bg-amber-50/50 rounded-2xl p-10 border border-dashed border-amber-300 text-center space-y-3">
-          <BookOpen className="w-10 h-10 text-amber-600 mx-auto" />
-          <h3 className="font-serif font-bold text-stone-800 text-lg">
+        <div className="bg-white rounded-3xl p-8 sm:p-10 border border-dashed border-[#ded5e8] text-center space-y-3 shadow-2xs">
+          <BookOpen className="w-10 h-10 text-[#9880be] mx-auto" />
+          <h3 className="font-bold text-[#3d3546] text-lg">
             該当する投稿が見つかりませんでした
           </h3>
-          <p className="text-stone-600 text-xs max-w-sm mx-auto">
+          <p className="text-[#6e637c] text-xs max-w-sm mx-auto leading-relaxed">
             {searchQuery || categoryFilter !== 'ALL_CATS'
               ? '条件に一致する公開投稿がありません。フィルターや検索ワードを変更してみてください。'
               : 'まだ公開された投稿がありません。最初の投稿やつぶやきを記録してみましょう！'}
           </p>
           <button
             onClick={onNavigateToMoments}
-            className="mt-2 bg-amber-600 text-white font-medium text-xs px-4 py-2 rounded-xl shadow-xs hover:bg-amber-700 cursor-pointer"
+            className="mt-2 bg-[#9880be] hover:bg-[#8871b0] text-white font-semibold text-xs px-5 py-2.5 rounded-2xl shadow-xs transition-all active:scale-95 cursor-pointer inline-flex items-center gap-1.5"
           >
             きょうの投稿をはじめる
           </button>

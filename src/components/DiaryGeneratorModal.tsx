@@ -138,29 +138,29 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-stone-50 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto border border-stone-200 shadow-xl p-5 sm:p-6 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+      <div className="bg-[#f8f5f0] rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto border border-[#e2d9eb] shadow-xl p-5 sm:p-6 relative">
         <button
           onClick={onClose}
           disabled={isGenerating}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors z-10 cursor-pointer"
+          className="absolute top-4 right-4 p-1.5 rounded-full text-[#8e859b] hover:text-[#3d3546] hover:bg-[#eae3f2] transition-colors z-10 cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-stone-800 flex items-center justify-center text-amber-100 shadow-2xs">
+          <div className="w-10 h-10 rounded-2xl bg-[#9880be] flex items-center justify-center text-white shadow-xs">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-serif font-bold text-lg text-stone-900">
-              {selectedDate} の日記を作成
+            <h3 className="font-bold text-lg text-[#3d3546]">
+              {selectedDate} の日記作成
             </h3>
-            <p className="text-stone-500 text-xs flex items-center gap-1.5 flex-wrap">
-              <span>本日投稿された <span className="font-bold text-stone-800">{moments.length}件</span> のつぶやきから整理します</span>
+            <p className="text-[#6e637c] text-xs flex items-center gap-1.5 flex-wrap">
+              <span>本日投稿された <span className="font-bold text-[#3d3546]">{moments.length}件</span> の記録からまとめます</span>
               {wavePoints && wavePoints.length > 0 && (
-                <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300">
-                  ⚡ 気分の波（波形参照）連携あり
+                <span className="bg-[#f3eff8] text-[#8572a7] text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-[#ded5e8]">
+                  ⚡ 気分の波連携あり
                 </span>
               )}
             </p>
@@ -169,35 +169,54 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
 
         {/* Loading Overlay State */}
         {isGenerating ? (
-          <div className="py-10 text-center space-y-4">
+          <div className="py-8 px-4 text-center space-y-6 bg-white rounded-3xl border border-[#e8e2f0] shadow-2xs">
             <div className="relative w-16 h-16 mx-auto">
-              <div className="absolute inset-0 rounded-full border-3 border-stone-200 border-t-amber-600 animate-spin" />
-              <div className="absolute inset-2 rounded-full bg-stone-100 flex items-center justify-center text-amber-600">
+              <div className="absolute inset-0 rounded-full border-4 border-[#f0ebf7] border-t-[#9880be] animate-spin" />
+              <div className="absolute inset-2 rounded-full bg-[#f8f5f0] flex items-center justify-center text-[#9880be]">
                 <Sparkles className="w-6 h-6 animate-pulse" />
               </div>
             </div>
-            <h4 className="font-serif font-bold text-base text-stone-800">
-              日記を作成しています...
-            </h4>
-            <p className="text-stone-700 text-xs font-medium bg-stone-200/70 px-4 py-2 rounded-xl inline-block border border-stone-300">
-              {currentStep}
-            </p>
+            
+            <div>
+              <h4 className="font-bold text-base text-[#3d3546] mb-1">
+                AIが1日の思い出をまとめています...
+              </h4>
+              <p className="text-xs text-[#8572a7] font-medium">
+                {currentStep}
+              </p>
+            </div>
+
+            {/* Checklist progress bar simulation */}
+            <div className="space-y-2 text-left bg-[#f8f5f0]/80 p-4 rounded-2xl border border-[#ded5e8]">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#3d3546]">
+                <div className="w-4 h-4 rounded-full bg-[#9880be] text-white flex items-center justify-center text-[10px]">✓</div>
+                <span>出来事やつぶやきを整理中...</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#3d3546]">
+                <div className="w-4 h-4 rounded-full bg-[#9880be] text-white flex items-center justify-center text-[10px]">✓</div>
+                <span>今日を象徴するAIカバー画像を生成中...</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#3d3546]">
+                <div className="w-4 h-4 rounded-full bg-[#9880be] text-white flex items-center justify-center text-[10px]">✓</div>
+                <span>タイトルと心あたたまるストーリーを執筆中...</span>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
             {/* Embedded Mood Wave Graph Section */}
-            <div className="bg-amber-50/60 rounded-2xl p-3 sm:p-4 border border-amber-200/80 space-y-2">
+            <div className="bg-white rounded-2xl p-3 sm:p-4 border border-[#e8e2f0] space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-amber-600" />
-                  <span className="text-xs font-bold text-stone-800">
+                  <Activity className="w-4 h-4 text-[#9880be]" />
+                  <span className="text-xs font-bold text-[#3d3546]">
                     本日の気分の波 (WaveLog)
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowWavePreview(!showWavePreview)}
-                  className="text-[11px] text-amber-700 font-semibold hover:underline cursor-pointer"
+                  className="text-[11px] text-[#8572a7] font-semibold hover:underline cursor-pointer"
                 >
                   {showWavePreview ? '波形を非表示' : '波形を表示・調整'}
                 </button>
@@ -218,7 +237,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
 
             {/* Style Selector */}
             <div>
-              <label className="text-xs font-bold text-stone-700 block mb-2">
+              <label className="text-xs font-bold text-[#3d3546] block mb-2">
                 日記のまとめ方（文章の雰囲気）:
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -227,60 +246,60 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
                     key={opt.id}
                     type="button"
                     onClick={() => setStyle(opt.id)}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                       style === opt.id
-                        ? 'bg-white border-stone-800 ring-2 ring-stone-800/10 shadow-2xs'
-                        : 'bg-stone-100/60 border-stone-200 hover:bg-white'
+                        ? 'bg-white border-[#9880be] ring-2 ring-[#9880be]/20 shadow-2xs font-bold'
+                        : 'bg-white/60 border-[#ded5e8] hover:bg-white text-[#6e637c]'
                     }`}
                   >
-                    <div className="flex items-center gap-1.5 font-bold text-xs text-stone-800 mb-0.5">
+                    <div className="flex items-center gap-1.5 font-bold text-xs text-[#3d3546] mb-0.5">
                       <span>{opt.icon}</span>
                       <span>{opt.label}</span>
                     </div>
-                    <p className="text-[10px] text-stone-500 line-clamp-1">{opt.desc}</p>
+                    <p className="text-[10px] text-[#8e859b] line-clamp-1">{opt.desc}</p>
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Options */}
-            <div className="space-y-2.5 pt-2 border-t border-stone-200">
-              <label className="flex items-center justify-between p-3 rounded-xl bg-white border border-stone-200 cursor-pointer hover:bg-stone-50">
+            <div className="space-y-2.5 pt-2 border-t border-[#ded5e8]">
+              <label className="flex items-center justify-between p-3 rounded-2xl bg-white border border-[#e8e2f0] cursor-pointer hover:bg-[#f8f5f0]/50">
                 <div className="flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-stone-600" />
+                  <Volume2 className="w-4 h-4 text-[#8572a7]" />
                   <div>
-                    <span className="text-xs font-semibold text-stone-800 block">朗読音声を生成</span>
-                    <span className="text-[10px] text-stone-500">音声で日記を聴けるようにする</span>
+                    <span className="text-xs font-semibold text-[#3d3546] block">朗読音声を生成</span>
+                    <span className="text-[10px] text-[#8e859b]">音声で日記を聴けるようにする</span>
                   </div>
                 </div>
                 <input
                   type="checkbox"
                   checked={generateTTSOption}
                   onChange={(e) => setGenerateTTSOption(e.target.checked)}
-                  className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                  className="w-4 h-4 accent-[#9880be] rounded cursor-pointer"
                 />
               </label>
 
-              <div className="space-y-2.5 p-3 rounded-xl bg-white border border-stone-200">
+              <div className="space-y-2.5 p-3 rounded-2xl bg-white border border-[#e8e2f0]">
                 <label className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-stone-600" />
+                    <Globe className="w-4 h-4 text-[#8572a7]" />
                     <div>
-                      <span className="text-xs font-semibold text-stone-800 block">みんなの誌（タイムライン）に共有</span>
-                      <span className="text-[10px] text-stone-500">公開または選択カテゴリメンバーと共有</span>
+                      <span className="text-xs font-semibold text-[#3d3546] block">タイムラインに共有</span>
+                      <span className="text-[10px] text-[#8e859b]">公開またはグループ限定で共有</span>
                     </div>
                   </div>
                   <input
                     type="checkbox"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
-                    className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#9880be] rounded cursor-pointer"
                   />
                 </label>
 
                 {isPublic && (
-                  <div className="pt-2 border-t border-stone-100 space-y-1.5">
-                    <span className="text-[11px] font-bold text-stone-600 block">
+                  <div className="pt-2 border-t border-[#f0ebf7] space-y-1.5">
+                    <span className="text-[11px] font-bold text-[#6e637c] block">
                       共有するカテゴリを選択 (複数選択可能):
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
@@ -290,10 +309,10 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
                           <label
                             key={cat.id}
                             onClick={() => toggleCategory(cat.id)}
-                            className={`flex items-center justify-between p-2 rounded-lg border text-xs cursor-pointer transition-all ${
+                            className={`flex items-center justify-between p-2 rounded-xl border text-xs cursor-pointer transition-all ${
                               isChecked
-                                ? 'bg-amber-50 border-amber-300 font-bold text-amber-900'
-                                : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
+                                ? 'bg-[#f3eff8] border-[#9880be] font-bold text-[#3d3546]'
+                                : 'bg-[#f8f5f0]/50 border-[#ded5e8] text-[#6e637c] hover:bg-white'
                             }`}
                           >
                             <div className="flex items-center gap-1.5">
@@ -301,7 +320,7 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={() => {}}
-                                className="rounded text-amber-600 focus:ring-amber-500 h-3.5 w-3.5"
+                                className="rounded text-[#9880be] focus:ring-[#9880be] h-3.5 w-3.5"
                               />
                               <span className="truncate">{cat.label}</span>
                             </div>
@@ -318,9 +337,9 @@ export const DiaryGeneratorModal: React.FC<DiaryGeneratorModalProps> = ({
             <button
               id="btn-confirm-generate-diary"
               onClick={handleGenerate}
-              className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm shadow-2xs active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 rounded-2xl bg-[#9880be] hover:bg-[#8871b0] text-white font-bold text-xs sm:text-sm shadow-xs active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-amber-100" />
+              <Sparkles className="w-4 h-4 text-white/80" />
               日記を作成する
             </button>
           </div>

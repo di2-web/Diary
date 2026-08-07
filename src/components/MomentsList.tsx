@@ -21,19 +21,21 @@ export const MomentsList: React.FC<MomentsListProps> = ({
   const [isPurging, setIsPurging] = useState(false);
   const [purgeMessage, setPurgeMessage] = useState<string | null>(null);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (momentItem: Moment) => {
+    if (!currentUserId || currentUserId !== momentItem.userId) return;
     try {
-      await deleteDoc(doc(db, 'moments', id));
+      await deleteDoc(doc(db, 'moments', momentItem.id));
       onMomentsUpdated();
     } catch (err) {
       console.error('Delete error:', err);
     }
   };
 
-  const handleTogglePin = async (id: string, currentPinStatus?: boolean) => {
+  const handleTogglePin = async (momentItem: Moment) => {
+    if (!currentUserId || currentUserId !== momentItem.userId) return;
     try {
-      await updateDoc(doc(db, 'moments', id), {
-        isPinned: !currentPinStatus,
+      await updateDoc(doc(db, 'moments', momentItem.id), {
+        isPinned: !momentItem.isPinned,
       });
       onMomentsUpdated();
     } catch (err) {
@@ -71,14 +73,14 @@ export const MomentsList: React.FC<MomentsListProps> = ({
 
   if (moments.length === 0) {
     return (
-      <div className="bg-stone-50 rounded-2xl p-8 border border-dashed border-stone-200 text-center space-y-3">
-        <div className="w-12 h-12 mx-auto rounded-full bg-stone-100 flex items-center justify-center text-stone-500">
+      <div className="bg-white rounded-3xl p-8 border border-dashed border-[#ded5e8] text-center space-y-3 shadow-2xs">
+        <div className="w-12 h-12 mx-auto rounded-2xl bg-[#f3eff8] flex items-center justify-center text-[#9880be]">
           <MessageSquare className="w-6 h-6" />
         </div>
-        <h4 className="font-serif font-bold text-stone-800 text-lg">
+        <h4 className="font-bold text-[#3d3546] text-lg">
           {selectedDate} の記録はまだありません
         </h4>
-        <p className="text-stone-600 text-xs max-w-sm mx-auto leading-relaxed">
+        <p className="text-[#6e637c] text-xs max-w-sm mx-auto leading-relaxed">
           上の入力欄から、今日の出来事やメモをつぶやいてみましょう。つぶやきが集まったら日記を作成できます。
         </p>
       </div>
@@ -92,37 +94,37 @@ export const MomentsList: React.FC<MomentsListProps> = ({
     <div className="space-y-4">
       {/* Purge Notification */}
       {purgeMessage && (
-        <div className="bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 animate-fade-in shadow-2xs">
-          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+        <div className="bg-[#f3eff8] border border-[#ded5e8] text-[#3d3546] text-xs px-4 py-2.5 rounded-2xl flex items-center gap-2 animate-fade-in shadow-2xs">
+          <ShieldCheck className="w-4 h-4 text-[#9880be] shrink-0" />
           <span>{purgeMessage}</span>
         </div>
       )}
 
       {/* Generate Diary Banner & Purge Controls */}
-      <div className="bg-amber-100/80 rounded-2xl p-4 sm:p-5 border border-amber-200/90 text-stone-800 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-[#f3eff8] rounded-3xl p-4 sm:p-5 border border-[#ded5e8] text-[#3d3546] shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="font-serif font-bold text-base sm:text-lg text-amber-950">
-              {moments.length}件のつぶやきが集まりました
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <span className="font-bold text-base sm:text-lg text-[#3d3546]">
+              {moments.length}件の記録が集まりました
             </span>
-            <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">
+            <span className="text-[10px] bg-white text-[#8572a7] border border-[#ded5e8] px-2.5 py-0.5 rounded-full font-bold">
               📌 保護: {pinnedCount}件 / 未保護: {unpinnedCount}件
             </span>
           </div>
-          <p className="text-stone-600 text-xs">
+          <p className="text-[#6e637c] text-xs">
             日記作成後、不要な未保護素材はクリーンアップ（自動パージ）可能です。
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
           {unpinnedCount > 0 && (
             <button
               onClick={handlePurgeUnpinned}
               disabled={isPurging}
-              className="bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 font-medium text-xs px-3 py-2.5 rounded-xl shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              className="bg-white hover:bg-[#f8f5f0] text-[#3d3546] border border-[#ded5e8] font-semibold text-xs px-3.5 py-2.5 rounded-2xl shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
               title="保護されていない素材を消去・クリーンアップ"
             >
-              <Eraser className="w-3.5 h-3.5 text-amber-700" />
+              <Eraser className="w-3.5 h-3.5 text-[#9880be]" />
               <span>{isPurging ? '消去中...' : '未保護を整理'}</span>
             </button>
           )}
@@ -130,9 +132,9 @@ export const MomentsList: React.FC<MomentsListProps> = ({
           <button
             id="btn-generate-from-list"
             onClick={onGenerateDiaryClick}
-            className="flex-1 sm:flex-none bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+            className="flex-1 sm:flex-none bg-[#9880be] hover:bg-[#8871b0] text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
           >
-            <Sparkles className="w-4 h-4 text-amber-100" />
+            <Sparkles className="w-4 h-4 text-white/80" />
             日記を作成する
           </button>
         </div>
@@ -145,8 +147,8 @@ export const MomentsList: React.FC<MomentsListProps> = ({
             ? new Date(m.createdAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
             : '';
 
-          // Allow deletion if currentUserId matches or if user is owner
-          const canDelete = !currentUserId || currentUserId === m.userId;
+          // Allow deletion/pinning if currentUserId matches user's UID
+          const isOwner = Boolean(currentUserId && currentUserId === m.userId);
 
           return (
             <div
@@ -168,22 +170,24 @@ export const MomentsList: React.FC<MomentsListProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handleTogglePin(m.id, m.isPinned)}
-                    className={`px-2 py-1 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer ${
-                      m.isPinned
-                        ? 'bg-amber-500 text-white font-bold shadow-2xs'
-                        : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
-                    }`}
-                    title={m.isPinned ? '保護オン（自動消去されません）' : '保護オフ（クリーンアップ対象）'}
-                  >
-                    <Pin className="w-3 h-3" />
-                    <span className="text-[10px]">{m.isPinned ? '保護中' : '未保護'}</span>
-                  </button>
-
-                  {canDelete && (
+                  {isOwner && (
                     <button
-                      onClick={() => handleDelete(m.id)}
+                      onClick={() => handleTogglePin(m)}
+                      className={`px-2 py-1 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer ${
+                        m.isPinned
+                          ? 'bg-amber-500 text-white font-bold shadow-2xs'
+                          : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                      }`}
+                      title={m.isPinned ? '保護オン（自動消去されません）' : '保護オフ（クリーンアップ対象）'}
+                    >
+                      <Pin className="w-3 h-3" />
+                      <span className="text-[10px]">{m.isPinned ? '保護中' : '未保護'}</span>
+                    </button>
+                  )}
+
+                  {isOwner && (
+                    <button
+                      onClick={() => handleDelete(m)}
                       className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1 text-xs"
                       title="この投稿を削除"
                     >

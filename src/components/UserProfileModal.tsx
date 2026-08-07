@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, User, LogOut, Check, Sparkles, BookOpen } from 'lucide-react';
+import { X, User, LogOut, Check, Sparkles, BookOpen, ChevronDown } from 'lucide-react';
+import { CustomSelect } from './CustomSelect';
 import { UserProfile, DiaryStyle } from '../types';
 import { doc, updateDoc, db, firebaseSignOut, auth } from '../firebase';
 
@@ -128,17 +129,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <label className="text-xs font-bold text-stone-700 block mb-1">
               デフォルトのAI執筆文体:
             </label>
-            <select
+            <CustomSelect
               value={diaryStyle}
-              onChange={(e) => setDiaryStyle(e.target.value as DiaryStyle)}
-              className="w-full rounded-xl border border-stone-300 p-2.5 text-xs text-stone-800 focus:outline-hidden focus:ring-2 focus:ring-amber-500 bg-white"
-            >
-              {styleOptions.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              options={styleOptions}
+              onChange={(val) => setDiaryStyle(val as DiaryStyle)}
+              className="w-full"
+            />
           </div>
 
           <div className="pt-3 border-t border-amber-200/60 flex items-center justify-between">

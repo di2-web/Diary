@@ -206,13 +206,16 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-amber-200/80 shadow-md">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-serif font-bold text-stone-800 text-base flex items-center gap-2">
-          {selectedDate} の出来事・メモ
-        </h3>
-        <span className="text-xs text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full border border-stone-200">
-          きょうのログ
+    <div className="bg-white rounded-3xl p-5 border border-[#e8e2f0] shadow-2xs space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#9880be] animate-pulse" />
+          <h3 className="font-bold text-[#3d3546] text-sm sm:text-base">
+            {selectedDate} の出来事・気持ちをメモ
+          </h3>
+        </div>
+        <span className="text-xs text-[#8572a7] font-semibold bg-[#f3eff8] px-3 py-1 rounded-full border border-[#ded5e8]">
+          静かな記録
         </span>
       </div>
 
@@ -223,9 +226,9 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
             id="input-moment-content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="今どこで何してる？ どんな気持ち？（短いつぶやきやメモでOK！）"
+            placeholder="今どこで何してる？ どんな気持ち？（短い言葉や写真1枚でOK！）"
             rows={3}
-            className="w-full rounded-xl border border-stone-200 p-3 text-stone-800 placeholder-stone-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 text-sm resize-none bg-stone-50/50"
+            className="w-full rounded-2xl border border-[#ded5e8] p-3.5 text-[#3d3546] placeholder-[#a298b0] focus:outline-hidden focus:ring-2 focus:ring-[#9880be]/30 focus:border-[#9880be] text-sm resize-none bg-[#f8f5f0]/60 font-medium"
           />
         </div>
 
@@ -355,7 +358,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-upload-photo"
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-1.5 sm:p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl text-purple-600/80 hover:text-purple-700 hover:bg-purple-50 transition-colors"
               title="写真をアップロード"
             >
               <ImageIcon className="w-5 h-5" />
@@ -365,7 +368,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-upload-audio"
               type="button"
               onClick={() => audioFileInputRef.current?.click()}
-              className="p-1.5 sm:p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl text-purple-600/80 hover:text-purple-700 hover:bg-purple-50 transition-colors"
               title="音ファイルをアップロード"
             >
               <Music className="w-5 h-5" />
@@ -375,7 +378,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-sample-photos"
               type="button"
               onClick={() => setShowPhotoPicker(!showPhotoPicker)}
-              className="p-1.5 sm:p-2 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl text-purple-600/80 hover:text-purple-700 hover:bg-purple-50 transition-colors"
               title="サンプル写真を選ぶ"
             >
               <Camera className="w-5 h-5" />
@@ -385,10 +388,10 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-mic-record"
               type="button"
               onClick={isRecording ? stopRecording : startRecording}
-              className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
+              className={`p-1.5 sm:p-2 rounded-xl transition-colors ${
                 isRecording
                   ? 'bg-rose-100 text-rose-600 animate-pulse'
-                  : 'text-stone-500 hover:text-rose-600 hover:bg-rose-50'
+                  : 'text-purple-600/80 hover:text-rose-600 hover:bg-rose-50'
               }`}
               title="マイクでボイスメモ録音"
             >
@@ -402,10 +405,10 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               <button
                 type="button"
                 onClick={() => setShowCategoryMenu(!showCategoryMenu)}
-                className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-xl border transition-all cursor-pointer whitespace-nowrap ${
+                className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer whitespace-nowrap ${
                   !isPublic
                     ? 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200'
-                    : 'bg-amber-50 text-amber-900 border-amber-300 font-bold hover:bg-amber-100 shadow-2xs'
+                    : 'bg-purple-50 text-purple-900 border-purple-200 font-bold hover:bg-purple-100 shadow-2xs'
                 }`}
                 title="共有範囲・カテゴリ設定"
               >
@@ -416,7 +419,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
                   </>
                 ) : (
                   <>
-                    <Users className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <Users className="w-3.5 h-3.5 text-purple-600 shrink-0" />
                     <span>共有 ({selectedCategories.length})</span>
                   </>
                 )}
@@ -424,84 +427,90 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
 
               {/* Popover Menu */}
               {showCategoryMenu && (
-                <div className="absolute right-0 bottom-9 z-30 bg-white border border-stone-200 rounded-2xl shadow-xl p-3 w-64 text-left space-y-3 animate-fade-in">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-stone-100">
-                    <span className="text-xs font-bold text-stone-800">共有設定・カテゴリ選択</span>
-                    <button
-                      type="button"
-                      onClick={() => setShowCategoryMenu(false)}
-                      className="text-stone-400 hover:text-stone-700 text-xs font-bold p-0.5"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {/* Public Toggle Switch */}
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-stone-50 border border-stone-200">
-                    <div className="flex items-center gap-1.5">
-                      {isPublic ? <Globe className="w-4 h-4 text-emerald-600" /> : <Lock className="w-4 h-4 text-stone-500" />}
-                      <span className="text-xs font-bold text-stone-800">
-                        {isPublic ? 'みんなの誌に公開' : '自分のみ非公開'}
-                      </span>
+                <>
+                  <div
+                    className="fixed inset-0 z-30 bg-black/20 sm:bg-transparent"
+                    onClick={() => setShowCategoryMenu(false)}
+                  />
+                  <div className="fixed sm:absolute left-4 right-4 bottom-16 sm:left-auto sm:right-0 sm:bottom-9 z-40 bg-white border border-purple-100 rounded-3xl sm:rounded-2xl shadow-xl p-4 sm:p-3.5 w-auto sm:w-64 max-w-[calc(100vw-2rem)] text-left space-y-3 animate-fade-in">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-purple-100">
+                      <span className="text-xs font-bold text-purple-950">共有設定・グループ選択</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowCategoryMenu(false)}
+                        className="text-stone-400 hover:text-stone-700 text-xs font-bold p-1 cursor-pointer"
+                      >
+                        ✕
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsPublic(!isPublic)}
-                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
-                        isPublic ? 'bg-amber-600' : 'bg-stone-300'
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                          isPublic ? 'translate-x-4' : 'translate-x-0'
+
+                    {/* Public Toggle Switch */}
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-purple-50/50 border border-purple-100">
+                      <div className="flex items-center gap-1.5">
+                        {isPublic ? <Globe className="w-4 h-4 text-purple-600" /> : <Lock className="w-4 h-4 text-stone-500" />}
+                        <span className="text-xs font-bold text-purple-950">
+                          {isPublic ? 'みんなの誌に公開' : '自分のみ非公開'}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsPublic(!isPublic)}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                          isPublic ? 'bg-purple-600' : 'bg-stone-300'
                         }`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Category Selection Checkboxes */}
-                  {isPublic && (
-                    <div className="space-y-1.5 pt-1">
-                      <span className="text-[11px] font-bold text-stone-500 block">
-                        共有先カテゴリ (複数選択可能):
-                      </span>
-                      {availableCategories.map((cat) => {
-                        const isChecked = selectedCategories.includes(cat.id);
-                        return (
-                          <label
-                            key={cat.id}
-                            onClick={() => toggleCategory(cat.id)}
-                            className={`flex items-center justify-between p-2 rounded-xl border text-xs cursor-pointer transition-all ${
-                              isChecked
-                                ? 'bg-amber-50/80 border-amber-300 font-bold text-amber-900'
-                                : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() => {}}
-                                className="rounded text-amber-600 focus:ring-amber-500 h-3.5 w-3.5"
-                              />
-                              <span>{cat.label}</span>
-                            </div>
-                            <span className="text-[10px] text-stone-400 font-normal">{cat.desc}</span>
-                          </label>
-                        );
-                      })}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                            isPublic ? 'translate-x-4' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
                     </div>
-                  )}
-                </div>
+
+                    {/* Category Selection Checkboxes */}
+                    {isPublic && (
+                      <div className="space-y-1.5 pt-1 max-h-48 overflow-y-auto">
+                        <span className="text-[11px] font-bold text-stone-500 block">
+                          共有先カテゴリ (複数選択可能):
+                        </span>
+                        {availableCategories.map((cat) => {
+                          const isChecked = selectedCategories.includes(cat.id);
+                          return (
+                            <label
+                              key={cat.id}
+                              onClick={() => toggleCategory(cat.id)}
+                              className={`flex items-center justify-between p-2 rounded-xl border text-xs cursor-pointer transition-all ${
+                                isChecked
+                                  ? 'bg-purple-50 border-purple-300 font-bold text-purple-900'
+                                  : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-50'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => {}}
+                                  className="rounded text-purple-600 focus:ring-purple-500 h-3.5 w-3.5 cursor-pointer"
+                                />
+                                <span>{cat.label}</span>
+                              </div>
+                              <span className="text-[10px] text-stone-400 font-normal">{cat.desc}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
 
             <button
               type="button"
               onClick={() => setIsPinned(!isPinned)}
-              className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-xl border transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                 isPinned
-                  ? 'bg-amber-500 text-white border-amber-600 font-bold shadow-2xs'
+                  ? 'bg-purple-600 text-white border-purple-700 font-bold shadow-2xs'
                   : 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200'
               }`}
               title="保護（ピン留め）すると自動消去から除外されます"
@@ -514,7 +523,7 @@ export const MomentPostForm: React.FC<MomentPostFormProps> = ({
               id="btn-submit-moment"
               type="submit"
               disabled={isSubmitting || (!content.trim() && !mediaUrl)}
-              className="flex items-center gap-1.5 bg-stone-800 hover:bg-stone-900 text-white text-xs sm:text-sm font-medium px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-40 cursor-pointer whitespace-nowrap shrink-0"
+              className="flex items-center gap-1.5 bg-[#9880be] hover:bg-[#8871b0] text-white text-xs sm:text-sm font-semibold px-4.5 py-2 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-40 cursor-pointer whitespace-nowrap shrink-0"
             >
               <Send className="w-4 h-4 shrink-0" />
               投稿する

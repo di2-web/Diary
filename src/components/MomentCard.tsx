@@ -133,35 +133,35 @@ export const MomentCard: React.FC<MomentCardProps> = React.memo(({
     ? new Date(moment.createdAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
     : '';
 
-  const canDelete = currentUser && currentUser.uid === moment.userId;
+  const canDelete = Boolean(currentUser?.uid && currentUser.uid === moment.userId);
 
   const categories = moment.shareCategories && moment.shareCategories.length > 0
     ? moment.shareCategories
     : ['Default'];
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-2xs hover:shadow-xs transition-all space-y-3">
+    <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-5 border border-purple-100 shadow-2xs hover:shadow-xs transition-all space-y-3">
       {/* User Info Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img
             src={moment.userPhotoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${moment.userId}`}
             alt={moment.userDisplayName || 'ユーザー'}
-            className="w-9 h-9 rounded-xl object-cover bg-amber-50 border border-stone-200"
+            className="w-9.5 h-9.5 rounded-2xl object-cover bg-purple-50 border border-purple-100"
             referrerPolicy="no-referrer"
             loading="lazy"
             decoding="async"
           />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-serif font-bold text-sm text-stone-800">
+              <span className="font-bold text-sm text-purple-950">
                 {moment.userDisplayName || '匿名のLifeLogユーザー'}
               </span>
-              <span className="text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-md font-medium">
-                日々のつぶやき
+              <span className="text-[10px] bg-purple-50 text-purple-700 font-medium px-2.5 py-0.5 rounded-full border border-purple-100">
+                つぶやき
               </span>
             </div>
-            <div className="flex items-center gap-2 text-[11px] text-stone-400 mt-0.5">
+            <div className="flex items-center gap-2 text-[11px] text-purple-400 mt-0.5">
               <span>{moment.date}</span>
               <span>•</span>
               <span className="flex items-center gap-1">
@@ -179,11 +179,11 @@ export const MomentCard: React.FC<MomentCardProps> = React.memo(({
             return (
               <span
                 key={i}
-                className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${
                   cat === 'All'
-                    ? 'bg-blue-50 text-blue-700 border-blue-200'
+                    ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
                     : cat === 'Default'
-                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                    ? 'bg-purple-50 text-purple-800 border-purple-200'
                     : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                 }`}
               >
